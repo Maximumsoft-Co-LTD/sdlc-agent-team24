@@ -12,14 +12,11 @@ export async function GET(request: NextRequest) {
 
   const books = await getBooks()
 
+  const regex = { $regex: q, $options: 'i' }
   const items = await books
     .find(
-      { $text: { $search: q }, status: 'published' },
-      {
-        projection: { epub_key: 0, score: { $meta: 'textScore' } },
-        sort: { score: { $meta: 'textScore' } },
-        limit,
-      }
+      { status: 'published', $or: [{ title: regex }, { author: regex }] },
+      { projection: { epub_key: 0 }, limit }
     )
     .toArray()
 

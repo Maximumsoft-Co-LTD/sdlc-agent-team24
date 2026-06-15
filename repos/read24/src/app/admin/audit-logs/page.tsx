@@ -2,14 +2,14 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
-const ACTION_COLORS: Record<string, string> = {
-  publish: 'bg-green-100 text-green-700',
-  reject: 'bg-red-100 text-red-700',
-  suspend: 'bg-orange-100 text-orange-700',
-  create_book: 'bg-blue-100 text-blue-700',
-  payout: 'bg-purple-100 text-purple-700',
-  price_change: 'bg-yellow-100 text-yellow-700',
-  topup: 'bg-indigo-100 text-indigo-700',
+const ACTION_STYLES: Record<string, { bg: string; fg: string }> = {
+  publish: { bg: '#E0EFE7', fg: '#2F6E54' },
+  reject: { bg: '#F6E0DA', fg: '#9a4632' },
+  suspend: { bg: '#FBEFD6', fg: '#8a6a16' },
+  create_book: { bg: 'rgba(47,93,80,0.12)', fg: '#2F5D50' },
+  payout: { bg: 'rgba(201,154,63,0.15)', fg: '#8a6a16' },
+  price_change: { bg: '#FBEFD6', fg: '#8a6a16' },
+  topup: { bg: 'rgba(47,93,80,0.12)', fg: '#2F5D50' },
 }
 
 const ACTION_OPTIONS = [
@@ -59,16 +59,20 @@ export default function AuditLogsPage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">บันทึกการกระทำ</h1>
+        <h1
+          className="text-2xl font-bold"
+          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+        >
+          บันทึกการกระทำ
+        </h1>
         <select
           value={actionFilter}
           onChange={e => setActionFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+          className="rounded-lg px-3 py-1.5 text-sm focus:outline-none"
+          style={{ border: '1.5px solid #DDD1B8', backgroundColor: '#FBF6EC', color: '#2A241C' }}
         >
           {ACTION_OPTIONS.map(opt => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
       </div>
@@ -76,70 +80,78 @@ export default function AuditLogsPage() {
       {loading ? (
         <div className="space-y-2">
           {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="h-14 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-14 rounded-xl animate-pulse" style={{ backgroundColor: '#DDD1B8' }} />
           ))}
         </div>
       ) : logs.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-          <p className="text-gray-500">ไม่พบบันทึก</p>
+        <div
+          className="text-center py-16 rounded-xl"
+          style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+        >
+          <p style={{ color: '#6B6253' }}>ไม่พบบันทึก</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+        <div className="rounded-xl overflow-x-auto" style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}>
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead style={{ backgroundColor: '#EFE6D2', borderBottom: '1px solid #DDD1B8' }}>
               <tr>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">ผู้ดำเนินการ</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">การกระทำ</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">เป้าหมาย</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">หมายเหตุ</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">เวลา</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>ผู้ดำเนินการ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>การกระทำ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>เป้าหมาย</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>หมายเหตุ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>เวลา</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {logs.map((log: any) => (
-                <tr key={log._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900 text-xs font-mono">
-                      {log.actor_user_id?.slice(-8) || '-'}
-                    </p>
-                    <p className="text-xs text-gray-500">{log.actor_role}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                        ACTION_COLORS[log.action] || 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {log.action}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-600">
-                    <p>{log.target_type || '-'}</p>
-                    <p className="font-mono text-gray-400">{log.target_id?.slice(-8) || ''}</p>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500 max-w-xs truncate">
-                    {log.metadata?.note || '-'}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
-                    {log.created_at
-                      ? new Date(log.created_at).toLocaleDateString('th-TH', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })
-                      : '-'}
-                  </td>
-                </tr>
-              ))}
+            <tbody>
+              {logs.map((log: any) => {
+                const actionStyle = ACTION_STYLES[log.action] || { bg: '#ECEAE2', fg: '#7a7263' }
+                return (
+                  <tr key={log._id} style={{ borderBottom: '1px solid rgba(221,209,184,0.5)' }}>
+                    <td className="px-4 py-3">
+                      <p className="font-mono text-xs font-medium" style={{ color: '#2A241C' }}>
+                        {log.actor_user_id?.slice(-8) || '-'}
+                      </p>
+                      <p className="text-xs" style={{ color: '#6B6253' }}>{log.actor_role}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+                        style={{ backgroundColor: actionStyle.bg, color: actionStyle.fg }}
+                      >
+                        {log.action}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#5a5142' }}>
+                      <p>{log.target_type || '-'}</p>
+                      <p className="font-mono" style={{ color: '#6B6253' }}>
+                        {log.target_id?.slice(-8) || ''}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3 text-xs max-w-xs truncate" style={{ color: '#6B6253' }}>
+                      {log.metadata?.note || '-'}
+                    </td>
+                    <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: '#6B6253' }}>
+                      {log.created_at
+                        ? new Date(log.created_at).toLocaleDateString('th-TH', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '-'}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
           {nextCursor && (
-            <div className="p-4 border-t border-gray-100">
+            <div className="p-4" style={{ borderTop: '1px solid #DDD1B8' }}>
               <button
                 onClick={() => fetchLogs(nextCursor)}
-                className="w-full text-sm text-red-600 hover:underline py-1"
+                className="w-full text-sm py-1 font-medium"
+                style={{ color: '#BF5A2B' }}
               >
                 โหลดเพิ่มเติม
               </button>

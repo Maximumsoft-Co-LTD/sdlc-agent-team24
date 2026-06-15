@@ -2,20 +2,21 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'ร่าง',
-  pending_review: 'รอรีวิว',
-  published: 'เผยแพร่แล้ว',
-  rejected: 'ถูกปฏิเสธ',
-  suspended: 'ระงับ',
+// Design-system status badge styles
+const STATUS_STYLES: Record<string, { bg: string; fg: string }> = {
+  published: { bg: '#E0EFE7', fg: '#2F6E54' },
+  pending_review: { bg: '#FBEFD6', fg: '#8a6a16' },
+  draft: { bg: '#ECEAE2', fg: '#7a7263' },
+  suspended: { bg: '#F6E0DA', fg: '#9a4632' },
+  rejected: { bg: '#F6E0DA', fg: '#9a4632' },
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-700',
-  pending_review: 'bg-yellow-100 text-yellow-700',
-  published: 'bg-green-100 text-green-700',
-  rejected: 'bg-red-100 text-red-700',
-  suspended: 'bg-orange-100 text-orange-700',
+const STATUS_LABELS: Record<string, string> = {
+  draft: 'ฉบับร่าง',
+  pending_review: 'รออนุมัติ',
+  published: 'เผยแพร่',
+  rejected: 'ถูกปฏิเสธ',
+  suspended: 'ระงับ',
 }
 
 export default function AdminBooksPage() {
@@ -52,11 +53,7 @@ export default function AdminBooksPage() {
     if (accessToken) fetchBooks()
   }, [accessToken, statusFilter, publisherFilter])
 
-  const handleAction = async (
-    bookId: string,
-    action: 'publish' | 'suspend',
-    bookTitle: string
-  ) => {
+  const handleAction = async (bookId: string, action: 'publish' | 'suspend', bookTitle: string) => {
     if (!confirm(`ยืนยัน${action === 'publish' ? 'เผยแพร่' : 'ระงับ'}หนังสือ "${bookTitle}"?`)) return
     setActionLoading(bookId)
     const res = await fetch(`/api/v1/admin/books/${bookId}/${action}`, {
@@ -73,10 +70,7 @@ export default function AdminBooksPage() {
     setActionLoading(rejectModal.bookId)
     const res = await fetch(`/api/v1/admin/books/${rejectModal.bookId}/reject`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
       credentials: 'include',
       body: JSON.stringify({ reason: rejectReason }),
     })
@@ -88,20 +82,31 @@ export default function AdminBooksPage() {
     setActionLoading(null)
   }
 
+  const selectStyle = {
+    border: '1.5px solid #DDD1B8',
+    backgroundColor: '#FBF6EC',
+    color: '#2A241C',
+    borderRadius: '8px',
+    padding: '6px 12px',
+    fontSize: '14px',
+    outline: 'none',
+  }
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">จัดการหนังสือ</h1>
+        <h1
+          className="text-2xl font-bold"
+          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+        >
+          จัดการหนังสือ
+        </h1>
         <div className="flex gap-2">
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={selectStyle}>
             <option value="">ทุกสถานะ</option>
-            <option value="draft">ร่าง</option>
-            <option value="pending_review">รอรีวิว</option>
-            <option value="published">เผยแพร่แล้ว</option>
+            <option value="draft">ฉบับร่าง</option>
+            <option value="pending_review">รออนุมัติ</option>
+            <option value="published">เผยแพร่</option>
             <option value="rejected">ถูกปฏิเสธ</option>
             <option value="suspended">ระงับ</option>
           </select>
@@ -111,84 +116,100 @@ export default function AdminBooksPage() {
       {loading ? (
         <div className="space-y-2">
           {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="h-14 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-14 rounded-xl animate-pulse" style={{ backgroundColor: '#DDD1B8' }} />
           ))}
         </div>
       ) : books.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-          <p className="text-gray-500">ไม่พบหนังสือ</p>
+        <div
+          className="text-center py-16 rounded-xl"
+          style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+        >
+          <p style={{ color: '#6B6253' }}>ไม่พบหนังสือ</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+        <div
+          className="rounded-xl overflow-x-auto"
+          style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+        >
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead style={{ backgroundColor: '#EFE6D2', borderBottom: '1px solid #DDD1B8' }}>
               <tr>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">ชื่อหนังสือ</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">สำนักพิมพ์</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">สถานะ</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">วันที่สร้าง</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">การดำเนินการ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>ชื่อหนังสือ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>สำนักพิมพ์</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>สถานะ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>วันที่สร้าง</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>การดำเนินการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {books.map((book: any) => (
-                <tr key={book._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{book.title}</p>
-                    <p className="text-xs text-gray-500">{book.author}</p>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 text-xs">{book.publisherName || '-'}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                        STATUS_COLORS[book.status] || 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {STATUS_LABELS[book.status] || book.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    {book.created_at
-                      ? new Date(book.created_at).toLocaleDateString('th-TH', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: '2-digit',
-                        })
-                      : '-'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      {book.status === 'pending_review' && (
-                        <>
+            <tbody>
+              {books.map((book: any) => {
+                const statusStyle = STATUS_STYLES[book.status] || { bg: '#ECEAE2', fg: '#7a7263' }
+                return (
+                  <tr
+                    key={book._id}
+                    style={{ borderBottom: '1px solid rgba(221,209,184,0.5)' }}
+                  >
+                    <td className="px-4 py-3">
+                      <p className="font-medium" style={{ color: '#2A241C' }}>{book.title}</p>
+                      <p className="text-xs" style={{ color: '#6B6253' }}>{book.author}</p>
+                    </td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#5a5142' }}>
+                      {book.publisherName || '-'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+                        style={{ backgroundColor: statusStyle.bg, color: statusStyle.fg }}
+                      >
+                        {STATUS_LABELS[book.status] || book.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#6B6253' }}>
+                      {book.created_at
+                        ? new Date(book.created_at).toLocaleDateString('th-TH', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: '2-digit',
+                          })
+                        : '-'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        {book.status === 'pending_review' && (
+                          <>
+                            <button
+                              onClick={() => handleAction(book._id, 'publish', book.title)}
+                              disabled={actionLoading === book._id}
+                              className="text-xs px-2 py-1 rounded transition-colors disabled:opacity-50"
+                              style={{ border: '1px solid #2F6E54', color: '#2F6E54', backgroundColor: '#E0EFE7' }}
+                            >
+                              เผยแพร่
+                            </button>
+                            <button
+                              onClick={() => setRejectModal({ bookId: book._id, title: book.title })}
+                              disabled={actionLoading === book._id}
+                              className="text-xs px-2 py-1 rounded transition-colors disabled:opacity-50"
+                              style={{ border: '1px solid #9a4632', color: '#9a4632', backgroundColor: '#F6E0DA' }}
+                            >
+                              ปฏิเสธ
+                            </button>
+                          </>
+                        )}
+                        {book.status === 'published' && (
                           <button
-                            onClick={() => handleAction(book._id, 'publish', book.title)}
+                            onClick={() => handleAction(book._id, 'suspend', book.title)}
                             disabled={actionLoading === book._id}
-                            className="text-xs text-green-700 border border-green-300 px-2 py-1 rounded hover:bg-green-50 disabled:opacity-50"
+                            className="text-xs px-2 py-1 rounded transition-colors disabled:opacity-50"
+                            style={{ border: '1px solid #8a6a16', color: '#8a6a16', backgroundColor: '#FBEFD6' }}
                           >
-                            เผยแพร่
+                            ระงับ
                           </button>
-                          <button
-                            onClick={() => setRejectModal({ bookId: book._id, title: book.title })}
-                            disabled={actionLoading === book._id}
-                            className="text-xs text-red-700 border border-red-300 px-2 py-1 rounded hover:bg-red-50 disabled:opacity-50"
-                          >
-                            ปฏิเสธ
-                          </button>
-                        </>
-                      )}
-                      {book.status === 'published' && (
-                        <button
-                          onClick={() => handleAction(book._id, 'suspend', book.title)}
-                          disabled={actionLoading === book._id}
-                          className="text-xs text-orange-700 border border-orange-300 px-2 py-1 rounded hover:bg-orange-50 disabled:opacity-50"
-                        >
-                          ระงับ
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -196,33 +217,39 @@ export default function AdminBooksPage() {
 
       {/* Reject Modal */}
       {rejectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-bold mb-2">ปฏิเสธหนังสือ</h3>
-            <p className="text-gray-600 text-sm mb-4">
-              "{rejectModal.title}"
-            </p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="rounded-2xl p-6 max-w-md w-full" style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}>
+            <h3
+              className="text-lg font-bold mb-2"
+              style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+            >
+              ปฏิเสธหนังสือ
+            </h3>
+            <p className="text-sm mb-4" style={{ color: '#5a5142' }}>"{rejectModal.title}"</p>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#5a5142' }}>
               เหตุผล (ไม่บังคับ)
             </label>
             <textarea
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 mb-4"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none mb-4"
+              style={{ border: '1.5px solid #DDD1B8', backgroundColor: '#EFE6D2', color: '#2A241C' }}
               placeholder="ระบุเหตุผลการปฏิเสธ..."
             />
             <div className="flex gap-3">
               <button
                 onClick={() => { setRejectModal(null); setRejectReason('') }}
-                className="flex-1 border border-gray-300 py-2 rounded-lg text-sm hover:bg-gray-50"
+                className="flex-1 py-2 rounded-lg text-sm font-medium"
+                style={{ border: '1.5px solid #DDD1B8', color: '#5a5142', backgroundColor: '#EFE6D2' }}
               >
                 ยกเลิก
               </button>
               <button
                 onClick={handleReject}
                 disabled={actionLoading === rejectModal.bookId}
-                className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+                className="flex-1 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
               >
                 {actionLoading === rejectModal.bookId ? 'กำลังส่ง...' : 'ยืนยันปฏิเสธ'}
               </button>

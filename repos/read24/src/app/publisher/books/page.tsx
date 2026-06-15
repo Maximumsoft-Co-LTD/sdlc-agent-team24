@@ -3,20 +3,20 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'ร่าง',
-  pending_review: 'รอรีวิว',
-  published: 'เผยแพร่แล้ว',
-  rejected: 'ถูกปฏิเสธ',
-  suspended: 'ระงับ',
+const STATUS_STYLES: Record<string, { bg: string; fg: string }> = {
+  published: { bg: '#E0EFE7', fg: '#2F6E54' },
+  pending_review: { bg: '#FBEFD6', fg: '#8a6a16' },
+  draft: { bg: '#ECEAE2', fg: '#7a7263' },
+  rejected: { bg: '#F6E0DA', fg: '#9a4632' },
+  suspended: { bg: '#F6E0DA', fg: '#9a4632' },
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-700',
-  pending_review: 'bg-yellow-100 text-yellow-700',
-  published: 'bg-green-100 text-green-700',
-  rejected: 'bg-red-100 text-red-700',
-  suspended: 'bg-orange-100 text-orange-700',
+const STATUS_LABELS: Record<string, string> = {
+  draft: 'ฉบับร่าง',
+  pending_review: 'รออนุมัติ',
+  published: 'เผยแพร่',
+  rejected: 'ถูกปฏิเสธ',
+  suspended: 'ระงับ',
 }
 
 export default function PublisherBooksPage() {
@@ -56,93 +56,118 @@ export default function PublisherBooksPage() {
   if (loading)
     return (
       <div className="flex justify-center py-16">
-        <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
+        <div
+          className="animate-spin w-8 h-8 border-4 border-t-transparent rounded-full"
+          style={{ borderColor: '#BF5A2B', borderTopColor: 'transparent' }}
+        />
       </div>
     )
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">หนังสือของฉัน</h1>
+        <h1
+          className="text-2xl font-bold"
+          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+        >
+          หนังสือของฉัน
+        </h1>
         <Link
           href="/publisher/books/new"
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium"
+          className="px-4 py-2 rounded-lg font-medium text-sm"
+          style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
         >
           + เพิ่มหนังสือใหม่
         </Link>
       </div>
 
       {books.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-          <p className="text-4xl mb-3">📚</p>
-          <p className="text-gray-500 mb-4">ยังไม่มีหนังสือ</p>
-          <Link href="/publisher/books/new" className="text-indigo-600 hover:underline">
+        <div
+          className="text-center py-16 rounded-xl"
+          style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+        >
+          <p className="text-4xl mb-3">&#128218;</p>
+          <p className="mb-4" style={{ color: '#6B6253' }}>ยังไม่มีหนังสือ</p>
+          <Link
+            href="/publisher/books/new"
+            className="font-medium"
+            style={{ color: '#BF5A2B' }}
+          >
             เพิ่มหนังสือเล่มแรก
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+        >
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead style={{ backgroundColor: '#EFE6D2', borderBottom: '1px solid #DDD1B8' }}>
               <tr>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">ชื่อหนังสือ</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">หมวดหมู่</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">ราคา</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">สถานะ</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">การดำเนินการ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>ชื่อหนังสือ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>หมวดหมู่</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>ราคา</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>สถานะ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>การดำเนินการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {books.map((book: any) => (
-                <tr key={book._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{book.title}</p>
-                    <p className="text-xs text-gray-500">{book.author}</p>
-                    {book.status === 'rejected' && book.rejection_reason && (
-                      <p className="text-xs text-red-600 mt-1">
-                        เหตุผล: {book.rejection_reason}
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{book.category || '-'}</td>
-                  <td className="px-4 py-3 text-gray-600">
-                    ฿{book.price_buy?.toLocaleString()}
-                    {book.price_rent && (
-                      <span className="text-xs text-gray-400 block">เช่า ฿{book.price_rent}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                        STATUS_COLORS[book.status] || 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {STATUS_LABELS[book.status] || book.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      {(book.status === 'draft' || book.status === 'rejected') && (
-                        <Link
-                          href={`/publisher/books/${book._id}/edit`}
-                          className="text-xs text-indigo-600 hover:text-indigo-800 border border-indigo-300 px-2 py-1 rounded"
-                        >
-                          แก้ไข
-                        </Link>
+            <tbody>
+              {books.map((book: any) => {
+                const statusStyle = STATUS_STYLES[book.status] || { bg: '#ECEAE2', fg: '#7a7263' }
+                return (
+                  <tr key={book._id} style={{ borderBottom: '1px solid rgba(221,209,184,0.5)' }}>
+                    <td className="px-4 py-3">
+                      <p className="font-medium" style={{ color: '#2A241C' }}>{book.title}</p>
+                      <p className="text-xs" style={{ color: '#6B6253' }}>{book.author}</p>
+                      {book.status === 'rejected' && book.rejection_reason && (
+                        <p className="text-xs mt-1" style={{ color: '#9a4632' }}>
+                          เหตุผล: {book.rejection_reason}
+                        </p>
                       )}
-                      {book.status === 'draft' && book.epub_key && (
-                        <button
-                          onClick={() => handleSubmitReview(book._id)}
-                          disabled={submitting === book._id}
-                          className="text-xs text-green-700 hover:text-green-900 border border-green-300 px-2 py-1 rounded disabled:opacity-50"
-                        >
-                          {submitting === book._id ? 'กำลังส่ง...' : 'ส่งให้รีวิว'}
-                        </button>
+                    </td>
+                    <td className="px-4 py-3" style={{ color: '#5a5142' }}>{book.category || '-'}</td>
+                    <td className="px-4 py-3" style={{ color: '#5a5142' }}>
+                      ฿{book.price_buy?.toLocaleString()}
+                      {book.price_rent && (
+                        <span className="text-xs block" style={{ color: '#6B6253' }}>
+                          เช่า ฿{book.price_rent}
+                        </span>
                       )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+                        style={{ backgroundColor: statusStyle.bg, color: statusStyle.fg }}
+                      >
+                        {STATUS_LABELS[book.status] || book.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        {(book.status === 'draft' || book.status === 'rejected') && (
+                          <Link
+                            href={`/publisher/books/${book._id}/edit`}
+                            className="text-xs px-2 py-1 rounded"
+                            style={{ border: '1px solid #2F6E54', color: '#2F6E54', backgroundColor: '#E0EFE7' }}
+                          >
+                            แก้ไข
+                          </Link>
+                        )}
+                        {book.status === 'draft' && book.epub_key && (
+                          <button
+                            onClick={() => handleSubmitReview(book._id)}
+                            disabled={submitting === book._id}
+                            className="text-xs px-2 py-1 rounded disabled:opacity-50"
+                            style={{ border: '1px solid #BF5A2B', color: '#BF5A2B', backgroundColor: '#FBF1E2' }}
+                          >
+                            {submitting === book._id ? 'กำลังส่ง...' : 'ส่งให้รีวิว'}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

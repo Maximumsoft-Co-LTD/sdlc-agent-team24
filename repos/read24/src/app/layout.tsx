@@ -1,15 +1,7 @@
 import type { Metadata } from 'next'
-import { Noto_Sans_Thai } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
 import Navbar from '@/components/Navbar'
-
-const notoSansThai = Noto_Sans_Thai({
-  subsets: ['thai', 'latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-noto-sans-thai',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: 'Read24 — Thai E-Book Marketplace',
@@ -22,8 +14,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="th" className={notoSansThai.variable}>
-      <body className="font-sans bg-white text-gray-900 min-h-screen">
+    <html lang="th">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className="min-h-screen" style={{ fontFamily: "'IBM Plex Sans Thai', system-ui, sans-serif", backgroundColor: '#ECE3D2', color: '#2A241C' }}>
         <Providers>
           <Navbar />
           <main>{children}</main>

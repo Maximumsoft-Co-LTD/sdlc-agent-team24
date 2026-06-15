@@ -51,10 +51,7 @@ export default function AdminPublishersPage() {
     setSaving(publisherId)
     const res = await fetch(`/api/v1/admin/publishers/${publisherId}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
       credentials: 'include',
       body: JSON.stringify({ revenue_share: newShare }),
     })
@@ -69,36 +66,47 @@ export default function AdminPublishersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">สำนักพิมพ์</h1>
+      <h1
+        className="text-2xl font-bold mb-6"
+        style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+      >
+        สำนักพิมพ์
+      </h1>
 
       {loading ? (
         <div className="space-y-2">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-14 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-14 rounded-xl animate-pulse" style={{ backgroundColor: '#DDD1B8' }} />
           ))}
         </div>
       ) : publishers.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-          <p className="text-gray-500">ยังไม่มีสำนักพิมพ์</p>
+        <div
+          className="text-center py-16 rounded-xl"
+          style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+        >
+          <p style={{ color: '#6B6253' }}>ยังไม่มีสำนักพิมพ์</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+        <div
+          className="rounded-xl overflow-x-auto"
+          style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+        >
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead style={{ backgroundColor: '#EFE6D2', borderBottom: '1px solid #DDD1B8' }}>
               <tr>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">ชื่อสำนักพิมพ์</th>
-                <th className="text-right px-4 py-3 font-semibold text-gray-600">จำนวนหนังสือ</th>
-                <th className="text-right px-4 py-3 font-semibold text-gray-600">รายได้รวม</th>
-                <th className="text-right px-4 py-3 font-semibold text-gray-600">ส่วนแบ่ง %</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">การดำเนินการ</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>ชื่อสำนักพิมพ์</th>
+                <th className="text-right px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>จำนวนหนังสือ</th>
+                <th className="text-right px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>รายได้รวม</th>
+                <th className="text-right px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>ส่วนแบ่ง %</th>
+                <th className="text-left px-4 py-3 font-semibold" style={{ color: '#5a5142' }}>การดำเนินการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {publishers.map(pub => (
-                <tr key={pub.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{pub.name}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">{pub.bookCount}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">
+                <tr key={pub.id} style={{ borderBottom: '1px solid rgba(221,209,184,0.5)' }}>
+                  <td className="px-4 py-3 font-medium" style={{ color: '#2A241C' }}>{pub.name}</td>
+                  <td className="px-4 py-3 text-right" style={{ color: '#5a5142' }}>{pub.bookCount}</td>
+                  <td className="px-4 py-3 text-right" style={{ color: '#5a5142' }}>
                     ฿{(pub.totalEarnings || 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -110,10 +118,13 @@ export default function AdminPublishersPage() {
                         min="0"
                         max="100"
                         step="1"
-                        className="w-20 border border-gray-300 rounded px-2 py-0.5 text-sm text-right focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="w-20 rounded px-2 py-0.5 text-sm text-right focus:outline-none"
+                        style={{ border: '1.5px solid #BF5A2B', backgroundColor: '#FBF1E2', color: '#2A241C' }}
                       />
                     ) : (
-                      <span className="font-medium">{pub.revenue_share ?? 70}%</span>
+                      <span className="font-medium" style={{ color: '#2F6E54' }}>
+                        {pub.revenue_share ?? 70}%
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -122,13 +133,15 @@ export default function AdminPublishersPage() {
                         <button
                           onClick={() => handleSave(pub.id, pub.name)}
                           disabled={saving === pub.id}
-                          className="text-xs text-white bg-red-600 hover:bg-red-700 px-2 py-1 rounded disabled:opacity-50"
+                          className="text-xs px-2 py-1 rounded font-medium disabled:opacity-50"
+                          style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
                         >
                           {saving === pub.id ? 'บันทึก...' : 'บันทึก'}
                         </button>
                         <button
                           onClick={() => setEditing(null)}
-                          className="text-xs text-gray-500 border border-gray-300 px-2 py-1 rounded hover:bg-gray-50"
+                          className="text-xs px-2 py-1 rounded"
+                          style={{ border: '1px solid #DDD1B8', color: '#5a5142', backgroundColor: '#EFE6D2' }}
                         >
                           ยกเลิก
                         </button>
@@ -136,7 +149,8 @@ export default function AdminPublishersPage() {
                     ) : (
                       <button
                         onClick={() => handleEdit(pub)}
-                        className="text-xs text-indigo-600 border border-indigo-300 px-2 py-1 rounded hover:bg-indigo-50"
+                        className="text-xs px-2 py-1 rounded"
+                        style={{ border: '1px solid #2F6E54', color: '#2F6E54', backgroundColor: '#E0EFE7' }}
                       >
                         แก้ไขส่วนแบ่ง
                       </button>

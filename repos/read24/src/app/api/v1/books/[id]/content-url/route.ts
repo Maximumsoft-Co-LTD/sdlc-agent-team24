@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { GetObjectCommand } from '@aws-sdk/client-s3'
-import { s3Client, BUCKET } from '@/lib/minio'
 import { getEntitlements, getBooks } from '@/lib/db/collections'
 import { verifyToken } from '@/lib/middleware'
 
@@ -53,8 +50,10 @@ export async function GET(
     return NextResponse.json({ error: 'BOOK_NOT_FOUND' }, { status: 404 })
   }
 
-  const command = new GetObjectCommand({ Bucket: BUCKET, Key: book.epub_key })
-  const url = await getSignedUrl(s3Client, command, { expiresIn: 900 })
+  // Return a same-origin proxy URL so epub.js doesn't hit MinIO directly (avoids CORS)
+  const rawToken = request.headers.get('authorization')?.replace('Bearer ', '') ?? ''
+  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const url = `${base}/api/v1/books/${params.id}/epub?token=${encodeURIComponent(rawToken)}`
 
   return NextResponse.json({ url, expiresIn: 900 })
 }

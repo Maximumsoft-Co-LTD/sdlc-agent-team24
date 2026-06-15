@@ -57,74 +57,153 @@ export default function PurchaseModal({ book, type, onClose, onSuccess }: Props)
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}>
+      <div className="rounded-2xl p-6 w-full max-w-sm shadow-xl" style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}>
         {step === 'success' ? (
           <div className="text-center">
-            <div className="text-5xl mb-4">✅</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+            <div className="text-5xl mb-4">&#10003;</div>
+            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}>
               {type === 'buy' ? 'ซื้อสำเร็จ!' : 'เช่าสำเร็จ!'}
             </h2>
-            <p className="text-gray-600 mb-6">{book.title}</p>
+            <p className="mb-6" style={{ color: '#5a5142' }}>{book.title}</p>
             <div className="flex gap-3">
-              <button onClick={() => router.push('/library')} className="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-medium">ชั้นหนังสือ</button>
-              <button onClick={() => router.push(`/read/${book._id}`)} className="flex-1 bg-green-600 text-white py-2.5 rounded-xl font-medium">อ่านเลย</button>
+              <button
+                onClick={() => router.push('/library')}
+                className="flex-1 py-2.5 rounded-xl font-medium"
+                style={{ backgroundColor: '#2F5D50', color: '#EFE6D2' }}
+              >
+                ชั้นหนังสือ
+              </button>
+              <button
+                onClick={() => router.push(`/read/${book._id}`)}
+                className="flex-1 py-2.5 rounded-xl font-medium"
+                style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+              >
+                อ่านเลย
+              </button>
             </div>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{type === 'buy' ? 'ซื้อหนังสือ' : 'เช่าหนังสือ'}</h2>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+              <h2
+                className="text-lg font-bold"
+                style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+              >
+                {type === 'buy' ? 'ซื้อหนังสือ' : 'เช่าหนังสือ'}
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-2xl leading-none transition-colors"
+                style={{ color: '#b3a88f' }}
+              >
+                &times;
+              </button>
             </div>
 
-            <div className="flex gap-3 mb-4 p-3 bg-gray-50 rounded-xl">
-              <div className="w-16 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex-shrink-0 overflow-hidden">
-                {book.cover_url && <img src={book.cover_url} className="w-full h-full object-cover" alt="" />}
+            {/* Book summary */}
+            <div className="flex gap-3 mb-4 p-3 rounded-xl" style={{ backgroundColor: '#EFE6D2' }}>
+              <div
+                className="w-16 h-20 rounded-lg flex-shrink-0 overflow-hidden"
+                style={{ backgroundColor: '#3D5A4A' }}
+              >
+                {book.cover_url && (
+                  <img src={book.cover_url} className="w-full h-full object-cover" alt="" />
+                )}
               </div>
               <div>
-                <p className="font-medium text-sm">{book.title}</p>
-                <p className="text-xs text-gray-500">{book.author}</p>
-                <p className="text-lg font-bold text-gray-900 mt-1">฿{price}</p>
-                {type === 'rent' && <p className="text-xs text-gray-500">{book.rent_days ?? 7} วัน</p>}
+                <p className="font-medium text-sm" style={{ color: '#2A241C' }}>{book.title}</p>
+                <p className="text-xs" style={{ color: '#6B6253' }}>{book.author}</p>
+                <p className="text-lg font-bold mt-1" style={{ color: '#2A241C' }}>฿{price}</p>
+                {type === 'rent' && (
+                  <p className="text-xs" style={{ color: '#6B6253' }}>{book.rent_days ?? 7} วัน</p>
+                )}
               </div>
             </div>
 
+            {/* Payment method */}
             <div className="mb-4">
-              <p className="text-sm font-medium text-gray-700 mb-2">วิธีชำระ</p>
+              <p className="text-sm font-medium mb-2" style={{ color: '#5a5142' }}>วิธีชำระ</p>
               <div className="space-y-2">
-                <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer ${paymentMethod === 'mock' ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'}`}>
-                  <input type="radio" value="mock" checked={paymentMethod === 'mock'} onChange={() => setPaymentMethod('mock')} />
+                {/* PromptPay */}
+                <label
+                  className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
+                  style={{
+                    border: paymentMethod === 'mock' ? '2px solid #BF5A2B' : '2px solid #DDD1B8',
+                    backgroundColor: paymentMethod === 'mock' ? '#FBF1E2' : '#FBF6EC',
+                  }}
+                >
+                  <input
+                    type="radio"
+                    value="mock"
+                    checked={paymentMethod === 'mock'}
+                    onChange={() => setPaymentMethod('mock')}
+                    style={{ accentColor: '#BF5A2B' }}
+                  />
                   <div>
-                    <p className="font-medium text-sm">PromptPay (จำลอง)</p>
-                    <p className="text-xs text-gray-500">ชำระผ่าน QR Code จำลอง</p>
+                    <p className="font-medium text-sm" style={{ color: '#2A241C' }}>PromptPay (จำลอง)</p>
+                    <p className="text-xs" style={{ color: '#6B6253' }}>ชำระผ่าน QR Code จำลอง</p>
                   </div>
                 </label>
-                <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer ${!canPayWithCoins ? 'opacity-50 cursor-not-allowed' : paymentMethod === 'coin' ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'}`}>
-                  <input type="radio" value="coin" disabled={!canPayWithCoins} checked={paymentMethod === 'coin'} onChange={() => setPaymentMethod('coin')} />
+
+                {/* Coin */}
+                <label
+                  className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${!canPayWithCoins ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  style={{
+                    border: paymentMethod === 'coin' ? '2px solid #BF5A2B' : '2px solid #DDD1B8',
+                    backgroundColor: paymentMethod === 'coin' ? '#FBF1E2' : '#FBF6EC',
+                  }}
+                >
+                  <input
+                    type="radio"
+                    value="coin"
+                    disabled={!canPayWithCoins}
+                    checked={paymentMethod === 'coin'}
+                    onChange={() => setPaymentMethod('coin')}
+                    style={{ accentColor: '#BF5A2B' }}
+                  />
                   <div>
-                    <p className="font-medium text-sm">🪙 เหรียญ ({user?.balance ?? 0} เหรียญ)</p>
-                    <p className="text-xs text-gray-500">{canPayWithCoins ? `หักเหรียญ ${price} เหรียญ` : 'เหรียญไม่เพียงพอ'}</p>
+                    <p className="font-medium text-sm" style={{ color: '#2A241C' }}>
+                      &#x1FA99; เหรียญ ({user?.balance ?? 0} เหรียญ)
+                    </p>
+                    <p className="text-xs" style={{ color: '#6B6253' }}>
+                      {canPayWithCoins ? `หักเหรียญ ${price} เหรียญ` : 'เหรียญไม่เพียงพอ'}
+                    </p>
                   </div>
                 </label>
               </div>
             </div>
 
+            {/* QR mockup */}
             {paymentMethod === 'mock' && (
-              <div className="mb-4 p-4 bg-gray-50 rounded-xl text-center">
-                <p className="text-sm text-gray-500 mb-2">QR Code จำลอง (Demo)</p>
-                <div className="w-32 h-32 bg-gray-300 rounded-lg mx-auto flex items-center justify-center">
-                  <span className="text-gray-600 text-xs text-center">QR Code<br />PromptPay<br />(จำลอง)</span>
+              <div
+                className="mb-4 p-4 rounded-xl text-center"
+                style={{ backgroundColor: '#EFE6D2' }}
+              >
+                <p className="text-sm mb-2" style={{ color: '#6B6253' }}>QR Code จำลอง (Demo)</p>
+                <div
+                  className="w-32 h-32 rounded-lg mx-auto flex items-center justify-center"
+                  style={{ backgroundColor: '#DDD1B8' }}
+                >
+                  <span className="text-xs text-center" style={{ color: '#5a5142' }}>
+                    QR Code<br />PromptPay<br />(จำลอง)
+                  </span>
                 </div>
-                <p className="text-sm font-medium mt-2">฿{price}</p>
+                <p className="text-sm font-medium mt-2" style={{ color: '#2A241C' }}>฿{price}</p>
               </div>
             )}
 
-            {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
+            {error && <p className="text-sm mb-3" style={{ color: '#BF5A2B' }}>{error}</p>}
 
-            <button onClick={handleConfirm} disabled={step === 'processing'}
-              className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-50">
-              {step === 'processing' ? 'กำลังดำเนินการ...' : `ยืนยัน${type === 'buy' ? 'ซื้อ' : 'เช่า'} ฿${price}`}
+            <button
+              onClick={handleConfirm}
+              disabled={step === 'processing'}
+              className="w-full py-3 rounded-xl font-medium transition-colors disabled:opacity-50"
+              style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+            >
+              {step === 'processing'
+                ? 'กำลังดำเนินการ...'
+                : `ยืนยัน${type === 'buy' ? 'ซื้อ' : 'เช่า'} ฿${price}`}
             </button>
           </>
         )}
