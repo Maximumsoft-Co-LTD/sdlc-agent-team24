@@ -13,8 +13,8 @@
 - [ ] Cart badge บน navbar (จำนวน item)
 - [ ] ปุ่ม "เพิ่มในตะกร้า" ใน book detail (ซื้อขาดเท่านั้น)
 - [ ] `/cart` — รายการ + ราคา + ยอดรวม + ลบ + ยืนยันชำระ
-- [ ] เลือกชำระ: เหรียญ (ถ้าพอ) / บัตร / QR
-- [ ] poll order จนสำเร็จ → clear cart + "ซื้อสำเร็จ X เล่ม" + link library
+- [ ] เลือกชำระ: เหรียญ (ถ้าพอ) / mock pay (จำลอง)
+- [ ] ยืนยันชำระ (จำลอง) → สำเร็จทันที (ไม่มี gateway / ไม่มี polling) → clear cart + "ซื้อสำเร็จ X เล่ม" + link library
 - [ ] ล้มเหลว → ตะกร้าไม่ล้าง + error
 
 ## Definition of Done

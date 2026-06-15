@@ -11,11 +11,11 @@
 ## Endpoints
 
 ```
-GET    /api/v1/cart                     → { items, total, count }
+GET    /api/v1/cart                     → { items, total, count }   (Next.js Route Handler)
 POST   /api/v1/cart/items { bookId }    → 201 / 400 CART_BUY_ONLY / 409 DUPLICATE
 DELETE /api/v1/cart/items/:bookId       → 204
-POST   /api/v1/cart/checkout { paymentMethod }
-       → 201 { orderId, amount, payment? }
+POST   /api/v1/cart/checkout { paymentMethod:"coin"|"mock" }
+       → 201 { orderId, amount }
        → 402 INSUFFICIENT_COINS / 400 CART_EMPTY
 ```
 
@@ -28,7 +28,7 @@ POST   /api/v1/cart/checkout { paymentMethod }
 
 1. ตรวจ cart ไม่ว่าง
 2. สร้าง order + order_items ทุกเล่ม
-3. ชำระ (coin/card/QR) ครั้งเดียว
+3. ชำระครั้งเดียว: coin (atomic `$inc` ตัดยอด เช็ก `modifiedCount`) หรือ mock (paid ทันที)
 4. paid → ออกสิทธิ์ทุกเล่ม + revenue_split ต่อ item → ล้างตะกร้า
 5. ล้มเหลว → ตะกร้าไม่ล้าง
 

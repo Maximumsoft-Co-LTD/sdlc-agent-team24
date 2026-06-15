@@ -13,7 +13,7 @@
 - [ ] `/admin/books` — ตาราง + filter status/publisher + ปุ่ม publish/reject/suspend
 - [ ] Confirmation dialog ก่อนทุก action
 - [ ] Reject → กรอก reason ก่อนส่ง
-- [ ] `/admin/books/:id` — detail + preview ปก + link EPUB (presigned) + action buttons
+- [ ] `/admin/books/:id` — detail + preview ปก + link EPUB (MinIO presigned URL) + action buttons
 - [ ] Status badge ตามสถานะ (สี)
 - [ ] Route guard: redirect ถ้า role ≠ admin
 

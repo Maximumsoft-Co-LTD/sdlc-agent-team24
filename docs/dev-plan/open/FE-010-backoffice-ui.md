@@ -7,7 +7,7 @@
 | ผู้รับผิดชอบ | Frontend Dev |
 | อ้างอิง | BackOffice Spec §3, §7, §9, FR-11, FR-17, FR-18, FR-20 |
 | ขึ้นกับ | BE-010, BE-011, BE-012, FE-001 |
-| อ่านประกอบ | `Read24.dc.html` (หน้าตา back office) |
+| อ่านประกอบ | `Read24 (1).html` (หน้าตา back office) |
 
 ## งานที่ต้องทำ
 

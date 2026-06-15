@@ -11,7 +11,7 @@
 ## Endpoints
 
 ```
-GET  /api/v1/admin/dashboard?from=&to=        → KPI ทั้งระบบ (→ BE-012)
+GET  /api/v1/admin/dashboard?from=&to=        → KPI ทั้งระบบ (→ BE-012)   (Next.js Route Handler)
 GET  /api/v1/admin/books?status=&publisher=   → ทุกเล่ม + filter
 POST /api/v1/admin/books/:id/publish          → เผยแพร่ + audit_log
 POST /api/v1/admin/books/:id/reject { reason } → ตีกลับ + audit_log
@@ -32,7 +32,7 @@ draft → pending_review → published → suspended
 ## งานที่ต้องทำ
 
 - [ ] Role guard: เฉพาะ `role=admin`
-- [ ] publish: ตรวจมีไฟล์ EPUB บน S3 + set published_at
+- [ ] publish: ตรวจมีไฟล์ EPUB บน MinIO + set published_at
 - [ ] reject: set status + reason (สำนักพิมพ์เห็นใน GET /publisher/books)
 - [ ] suspend: status→suspended (**entitlement เดิมไม่กระทบ**)
 - [ ] บันทึก `audit_logs` + `book_status_history` ทุก transition

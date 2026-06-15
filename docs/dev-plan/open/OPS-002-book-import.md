@@ -5,22 +5,22 @@
 | สถานะ | open |
 | ผู้รับผิดชอบ | DevOps + Admin |
 | อ้างอิง | DevSpec Full §16 |
-| ขึ้นกับ | BE-007, INFRA-001(S3) |
+| ขึ้นกับ | BE-007, INFRA-001(MinIO) |
 
 ## เป้าหมาย
 
-≥ 300–1,000 เล่ม (ตั้งเป้า ~500) พร้อมเปิดตัว
+Seed 15–30 เล่ม (demo) พร้อมนำเสนอ
 
 ## งานที่ต้องทำ
 
-- [ ] Bulk import script: CSV/JSON + EPUB → S3 + DB (idempotent)
-- [ ] EPUB Validation: valid format, ≤50MB, มีปก/สารบัญ, เปิดได้จริง, ไทย ≥360px, สแกนไวรัส
-- [ ] ตรวจทุกเล่ม published มีไฟล์บน S3 จริง
-- [ ] ตั้งราคา/โหมดขาย (ซื้อ/เช่า) ครบ
-- [ ] บันทึกข้อมูลสัญญา: revenue_share, exclusive, เลขสัญญา, ช่วงเวลา
+- [ ] Seed script (idempotent): book metadata + cover + EPUB → MinIO + MongoDB
+- [ ] EPUB เปิดได้จริง (เช็คแค่เปิดได้ใน epub.js)
+- [ ] ตรวจทุกเล่ม published มีไฟล์บน MinIO จริง
+- [ ] ตั้งราคา/โหมดขาย (ซื้อ/เช่า)
+- [ ] สร้าง demo accounts (reader / publisher / admin)
 
 ## Definition of Done
 
-- [ ] ≥ 300 เล่ม status=published ก่อนเปิดตัว
-- [ ] Validation script ผ่านทุกเล่ม
-- [ ] ไม่มีเล่ม published ที่ไม่มีไฟล์ S3
+- [ ] 15–30 เล่ม status=published พร้อม EPUB บน MinIO
+- [ ] ทุกเล่มเปิดได้ใน epub.js
+- [ ] demo accounts พร้อมใช้งาน

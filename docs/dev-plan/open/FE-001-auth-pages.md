@@ -13,13 +13,12 @@
 - [ ] `/register` — ฟอร์ม email, password, displayName
 - [ ] `/login` — ฟอร์ม email, password
 - [ ] Access token เก็บใน memory (ไม่ใช้ localStorage)
-- [ ] Refresh token เป็น httpOnly cookie (browser จัดการ)
-- [ ] API interceptor: 401 → refresh → retry อัตโนมัติ
+- [ ] Refresh token เป็น httpOnly cookie (browser จัดการ) — ไม่ต้องทำ rotation สำหรับ demo
+- [ ] (Optional สำหรับ demo) API interceptor: 401 → refresh → retry อัตโนมัติ
 - [ ] Route guard: redirect → `/login` ถ้า unauthenticated
 - [ ] Client-side validation + error message จาก API
 
 ## Definition of Done
 
 - [ ] Register → Login → protected route ได้
-- [ ] Token expired → refresh อัตโนมัติ
 - [ ] `tsc --noEmit` + `lint` ผ่าน

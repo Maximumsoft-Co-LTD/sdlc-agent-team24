@@ -11,7 +11,7 @@
 ## Endpoints
 
 ```
-GET /api/v1/books?cursor=&limit=20&category=  → รายการ (published เท่านั้น)
+GET /api/v1/books?cursor=&limit=20&category=  → รายการ (published เท่านั้น)   (Next.js Route Handler)
 GET /api/v1/books/search?q=&limit=20          → full-text search
 GET /api/v1/books/:id                         → รายละเอียด / 404 ถ้า draft
 ```
@@ -20,8 +20,7 @@ GET /api/v1/books/:id                         → รายละเอียด
 
 - [ ] Cursor-based pagination
 - [ ] แสดงเฉพาะ `status='published'` (FR-2)
-- [ ] Full-text search ด้วย PostgreSQL GIN index (FR-3)
-- [ ] Cache รายการหนังสือ (Redis TTL 1–5 นาที)
+- [ ] Full-text search ด้วย MongoDB text index (FR-3)
 - [ ] เล่มที่ `price_rent=null` → ไม่แสดงตัวเลือกเช่า (FR-4)
 - [ ] ไม่คืน `epub_key` ใน response
 

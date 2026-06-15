@@ -1,337 +1,257 @@
-# Read24 — Priority Plan (ลำดับการพัฒนา)
+# Read24 — Priority Plan (เว็บ Demo สำหรับนำเสนอ)
 
-> อ้างอิง: `Read24_DevSpec_Full.md` §14,17 + `Read24_BackOffice_Spec.md` §11 · อัพเดต: 2026-06-15
+> เป้าหมาย: เดินวงจรผู้ใช้ให้ครบบน browser ตามดีไซน์ใน `docs/dev-plan/design/Read24 (1).html` เพื่อ **นำเสนอโปรเจกต์**
+> Stack: **Next.js full-stack + MongoDB + MinIO (Docker)** · จ่ายเงิน/เติมเหรียญ = **mock** · อ้างอิง: `TechStack.md` · อัพเดต: 2026-06-15
 
-## หลักในการจัดลำดับ
+## หลักการของแผนนี้
 
-1. **Blocker ก่อนเสมอ** — ถ้า Task A รอ Task B → ทำ B ก่อน
-2. **Critical Path** — เส้นที่ยาวที่สุด บล็อกทั้งระบบ ต้องเริ่มทันที
-3. **ทำขนานได้** — งานที่ไม่ขึ้นกัน ให้วิ่งพร้อมกัน ประหยัดเวลา
-4. **Sprint boundary** — Sprint 1 ต้องวงจรสมบูรณ์ก่อนเริ่ม Sprint 2
+1. **โชว์ flow ครบตามดีไซน์** สำคัญกว่า production-grade
+2. **Mock แทนของจริง** ทุกอย่างที่ผูกเงิน/external — payment, topup (ไม่ต่อ Stripe/Omise, ไม่มี webhook)
+3. **ตัดงานที่ไม่โชว์ในการนำเสนอ** — load test, monitoring, reconcile cron, read replica, Redis, coverage gate
+4. **ไม่มี blocker จาก gateway** — เริ่มเขียนโค้ดได้ตั้งแต่วันแรก
 
 ---
 
-## Critical Path (ห้ามข้าม — ล่าช้าตัวไหนทั้งระบบล่าช้า)
+## หน้าจอที่ต้องมี (จากดีไซน์)
+
+| กลุ่ม | หน้าจอในดีไซน์ | Task ที่เกี่ยว |
+|------|----------------|----------------|
+| ผู้อ่าน | หน้าร้าน catalog (แบบ Shopify) + แยกประเภท + เรียงตาม + แนะนำ | FE-002, BE-002 |
+| ผู้อ่าน | รายละเอียดหนังสือ (ซื้อขาด / เช่า / เพิ่มลงตะกร้า / เล่มอื่นที่น่าสนใจ) | FE-002, FE-003 |
+| ผู้อ่าน | ตะกร้า + checkout | FE-007, BE-009 |
+| ผู้อ่าน | ชั้นหนังสือ (เป็นเจ้าของ / กำลังเช่า / หมดอายุ) | FE-004, BE-004 |
+| ผู้อ่าน | ตัวอ่าน EPUB (สารบัญ / เริ่มอ่าน) | FE-005, BE-005 |
+| ผู้อ่าน | กระเป๋าเหรียญ + เลือกแพ็กเกจเติม (mock PromptPay) | FE-006, BE-008 |
+| สำนักพิมพ์ | เมนูสำนักพิมพ์ / หนังสือของฉัน (ร่าง/รออนุมัติ/เผยแพร่) + เพิ่มหนังสือ | FE-008, BE-010 |
+| สำนักพิมพ์ | แดชบอร์ด: รายได้ / ส่วนแบ่งของคุณ / ขาย | FE-010, BE-012 |
+| แอดมิน | แดชบอร์ด Read24 + อนุมัติ/เผยแพร่ + ส่วนแบ่ง | FE-009, FE-010, BE-011, BE-012 |
+
+---
+
+## สิ่งที่ Mock / ตัดออก (เทียบแผน production เดิม)
+
+| เดิม | Demo | วิธี |
+|------|------|------|
+| Payment gateway จริง + webhook (INFRA-002, Q-1) | **Mock** | `POST /orders` → `paid` + entitlement ในคำขอเดียว |
+| Wallet topup เงินจริง | **Mock** | เลือกแพ็ก → `$inc` เหรียญเข้า wallet ทันที |
+| Redis + BullMQ (queue/cache/rate-limit) | ตัด | ไม่ใช้ |
+| Cron ตัดสิทธิ์เช่าหมดอายุ (BE-006) | **Lazy expiry** | เช็ค `expires_at` ตอนขอ content-url / ตอนแสดง library |
+| PostgreSQL (GIN, SELECT FOR UPDATE, read replica) | **MongoDB** | text index + atomic `$inc` (`balance >= amount`) |
+| S3 / R2 / CDN + presigned จริง | **MinIO (Docker)** | เก็บใน volume, ออก presigned URL จาก MinIO |
+| Prometheus/Grafana/Sentry, load test (OPS-001) | ตัด | — |
+| Reconciliation cron, coverage 80% gate | ตัด/ผ่อน | เหลือ smoke test เดิน flow |
+| Import 500 เล่ม (OPS-002) | **Seed 15–30 เล่ม** | สคริปต์ seed สั้น |
+| Refresh token rotation, MFA, load balancer | ตัด/ผ่อน | access token พอสำหรับ demo |
+
+---
+
+## Critical Path (Demo)
 
 ```
-INFRA-001 ──► DB-001 ──► BE-001 ──► BE-003 ──► BE-005 ──► FE-005
+INFRA-001 ──► DB-001 ──► BE-001 ──► BE-003(mock) ──► BE-005 ──► FE-005
+(Mongo+MinIO    (schema)   (auth)    (orders/        (content)   (reader)
+ ใน Docker)                          entitlement)
 ```
 
----
-
-## Phase 0 — Prerequisites 🔴 (ทำก่อนทุกอย่าง — วิ่งขนานได้ทั้ง 3)
-
-### 🎯 เป้าหมาย
-ทีมทุกคนมี **สภาพแวดล้อมพร้อมทำงาน** และ **คำถามธุรกิจสำคัญได้รับคำตอบ** ก่อนเขียนโค้ดบรรทัดแรก
-
-### ✅ เกณฑ์ว่า Phase 0 เสร็จ
-- Dev รัน `docker-compose up` แล้วมี DB + Redis + S3-compatible service ขึ้นมาครบ
-- Mock payment service รันได้บน local (simulate paid/failed response)
-- PM ตอบคำถาม Q-5 (rent-to-own), Q-6 (coin packages), Q-8 (นโยบายคืนเหรียญ) เป็นลายลักษณ์อักษร
-
-| Task | ทำโดย | เหตุผลที่ต้องทำก่อน |
-|------|--------|-------------------|
-| **INFRA-001** Infrastructure Setup | DevOps | บล็อก DB-001 และทุกสิ่ง |
-| **เคาะ Open Items** Q-5, Q-6, Q-8 | PM | rent-to-own, coin packages, นโยบายคืนเหรียญ |
-
-> ✅ ทำขนาน: INFRA-001 + เคาะ Open Items พร้อมกัน (คนละทีม)
+> ❌ ไม่มี INFRA-002 บน critical path แล้ว — payment เป็น mock เริ่มได้ทันที
 
 ---
 
-## Phase 1 — Database + Auth 🔴 (Sprint 1, Week 1)
+## Phase 0 — Prerequisites 🔴 (วันแรก — วิ่งขนานได้)
 
 ### 🎯 เป้าหมาย
-วางรากฐานที่ **ทีมทุกคนทำงานบนฐานเดียวกัน** ได้ — schema ถูกต้อง login/logout ทำงาน บทบาท reader/publisher/admin แยกกันชัดเจน
+ทุกคนรันโปรเจกต์ขึ้นได้ + ตัดสินใจค่าตัวเลขที่ใช้ใน demo (ราคาหนังสือ, แพ็กเกจเหรียญ, ส่วนแบ่ง %)
 
-### ✅ เกณฑ์ว่า Phase 1 เสร็จ
-- `POST /auth/register` และ `POST /auth/login` คืน JWT ที่ใช้งานได้จริง
-- Refresh token ต่ออายุได้อัตโนมัติ
-- Role guard บล็อก admin route ถ้าไม่ใช่ admin (ทดสอบแล้ว)
-- Migration รัน `up` / `down` ได้ไม่มี error บน local + staging
-- ทุกตารางใน Sprint 1–3 มีใน schema แล้ว (เตรียมไว้ล่วงหน้า)
+### ✅ เสร็จเมื่อ
+- `docker-compose up` → **MongoDB + MinIO** ขึ้นครบ (ไม่มี Redis/payment)
+- Next.js dev server ติดต่อ Mongo + MinIO ได้ (health check ผ่าน)
+- PM เคาะ: coin packages (เช่น 100 / 300+โบนัส / 500), revenue_share เริ่มต้น (เช่น 70%), rent_days (เช่น 7)
 
-| ลำดับ | Task | ขึ้นกับ | เหตุผล |
-|-------|------|---------|--------|
-| 1 | **DB-001** Schema & Migrations | INFRA-001 | บล็อก BE ทั้งหมด — ต้องเสร็จก่อนใคร |
-| 2 | **BE-001** Authentication + Role Guard | DB-001 | บล็อก FE และ BE ทุกตัวที่ต้องการ token |
+| Task | ทำโดย |
+|------|--------|
+| **INFRA-001** Docker (Mongo + MinIO) + Next.js skeleton | DevOps/Dev |
+| เคาะค่าตัวเลข demo (ราคา/แพ็ก/ส่วนแบ่ง) | PM |
 
-> ⚡ DB-001 เสร็จ → BE-001 เริ่มทันที
+> ❌ ตัด INFRA-002 (gateway), Q-1 — ใช้ mock · ดู **INFRA-002 ที่ถูกแปลงเป็น Mock Payment Adapter**
 
 ---
 
-## Phase 2 — Catalog (Sprint 1, Week 1–2)
+## Phase 1 — Database + Auth 🔴 (Week 1)
 
 ### 🎯 เป้าหมาย
-ผู้ใช้ **เข้าสู่ระบบและเลือกดูหนังสือได้** — เปิดหน้าร้านได้จริง แม้ยังซื้อไม่ได้
+schema (MongoDB collections) พร้อม + login/register/role ทำงาน
 
-### ✅ เกณฑ์ว่า Phase 2 เสร็จ
-- หน้า `/login` และ `/register` ทำงานได้บน browser
-- หน้ารายการหนังสือแสดงเฉพาะ `status=published` พร้อม filter category
-- ค้นหาหนังสือด้วยชื่อ/ผู้แต่ง และดูหน้ารายละเอียดได้
-- เล่มที่ `price_rent=null` ไม่แสดงปุ่ม "เช่า"
-- หน้าร้านโหลด ≤ 2.5s บน staging
+### ✅ เสร็จเมื่อ
+- collections ครบสำหรับ demo (users, publishers, books, orders, order_items, entitlements, reading_progress, revenue_splits, wallets, wallet_transactions, coin_packages, topups, carts, cart_items, audit_logs)
+- `POST /api/auth/register`, `POST /api/auth/login` คืน JWT ใช้งานได้
+- Role guard กัน admin/publisher route
 
-| Task | ขึ้นกับ | ทำขนานกับ |
-|------|---------|----------|
-| **BE-002** Books API | DB-001, BE-001 | FE-001 |
+| ลำดับ | Task | ขึ้นกับ |
+|-------|------|---------|
+| 1 | **DB-001** Mongo Schema + seed (coin packages, demo accounts) | INFRA-001 |
+| 2 | **BE-001** Auth + Role Guard (ไม่ทำ refresh rotation, ไม่มี Redis rate-limit) | DB-001 |
+
+---
+
+## Phase 2 — Catalog (Week 1–2)
+
+### 🎯 เป้าหมาย
+ผู้ใช้เข้าระบบและเลือกดูหนังสือได้ — หน้าร้านแบบดีไซน์ (catalog + ประเภท + เรียงตาม)
+
+### ✅ เสร็จเมื่อ
+- `/login`, `/register` ใช้งานบน browser
+- หน้าร้านแสดง `status=published` + filter ประเภท + เรียงตาม + ค้นหา (Mongo text index)
+- หน้ารายละเอียด: ปก, ราคา, ปุ่ม ซื้อขาด / เช่า / เพิ่มลงตะกร้า, "เล่มอื่นที่น่าสนใจ"
+- เล่มที่ `price_rent=null` → ไม่แสดงปุ่มเช่า
+
+| Task | ขึ้นกับ | ขนานกับ |
+|------|---------|---------|
+| **BE-002** Books API (Mongo text search, ไม่มี Redis cache) | DB-001, BE-001 | FE-001 |
 | **FE-001** Auth Pages | BE-001 | BE-002 |
-| **FE-002** Book Catalog | BE-002, FE-001 | — (รอ 2 ตัวข้างบน) |
-
-> ✅ ทำขนาน: BE-002 + FE-001 (คนละทีม)
+| **FE-002** Catalog + Detail | BE-002, FE-001 | — |
 
 ---
 
-## Phase 3 — Core Transaction 🔴 (Sprint 1, Week 2–3)
+## Phase 3 — Core Transaction 🔴 (Week 2–3) — *mock payment*
 
 ### 🎯 เป้าหมาย
-ระบบหลังบ้าน **ออกสิทธิ์อ่านได้ถูกต้อง** — จ่าย (mock) แล้วได้สิทธิ์ทันที, เช่าหมดอายุตัดสิทธิ์อัตโนมัติ
+จ่าย (mock) แล้วได้สิทธิ์อ่านทันที — ทั้งซื้อขาดและเช่า, ออก content-url ให้เฉพาะผู้มีสิทธิ์
 
-### ✅ เกณฑ์ว่า Phase 3 เสร็จ
-- `POST /orders` + mock payment callback → order สถานะ `paid` + entitlement ถูกสร้างใน DB **ครั้งเดียว** (atomic)
-- mock callback ยิงซ้ำ → ไม่สร้าง entitlement ซ้ำ (idempotency ผ่าน test)
-- `GET /books/:id/content-url` คืน presigned URL ≤1s สำหรับ user ที่มีสิทธิ์
-- user ที่ไม่มีสิทธิ์ → 403 ทันที (ไม่ต้องรอ cron)
-- entitlement ที่เช่าหมดอายุ → ถูกตัดภายใน ≤15 นาที (cron job ทำงาน staging)
-- `platform_cut + publisher_share = net` ทุก revenue_split แถวใน DB
+### ✅ เสร็จเมื่อ
+- `POST /api/orders` (mock pay) → order `paid` + entitlement + revenue_split ในคำขอเดียว
+- เช่า → entitlement มี `expires_at`; ซื้อขาด → ไม่มีวันหมด
+- `GET /api/books/:id/content-url` คืน MinIO presigned URL เฉพาะผู้มีสิทธิ์ (ไม่มีสิทธิ์/หมดอายุ → 403, เช็ค lazy)
+- `platform_cut + publisher_share = net` ทุกแถว revenue_split
 
-| ลำดับ | Task | ขึ้นกับ | ทำขนานกับ |
-|-------|------|---------|----------|
-| 3-A | **BE-003** Orders & Mock Payment | DB-001, BE-001 | BE-006 |
-| 3-B | **BE-004** Library API | BE-003 | BE-005 |
-| 3-C | **BE-005** Reader & Content API | BE-003, INFRA-001(S3) | BE-004 |
-| 3-D | **BE-006** Rental Expiry Job | DB-001 | วิ่งพร้อม 3-A ได้ |
+| ลำดับ | Task | ขึ้นกับ | ขนานกับ |
+|-------|------|---------|---------|
+| 3-A | **BE-003** Orders (mock pay) + Entitlement + revenue_split | DB-001, BE-001 | — |
+| 3-B | **BE-004** Library API (owned/renting/expired + daysLeft) | BE-003 | BE-005 |
+| 3-C | **BE-005** Reader & Content API (MinIO presigned + lazy expiry + progress) | BE-003, INFRA-001 | BE-004 |
 
-> ✅ ทำขนาน: BE-006 คู่กับ BE-003 / BE-004 คู่กับ BE-005
+> ❌ ตัด BE-006 (BullMQ expiry worker) → ใช้ lazy expiry check แทน (รวมใน BE-005)
 
 ---
 
-## Phase 4 — Frontend Transaction (Sprint 1, Week 3–4)
+## Phase 4 — Frontend Transaction + Reader (Week 3–4)
 
 ### 🎯 เป้าหมาย
-ผู้ใช้ **ทำวงจรทั้งหมดได้บน browser** โดยไม่ต้องใช้ API client — ค้นหา → เลือก → จ่ายเงิน → อ่านหนังสือในแอป
+ผู้ใช้เดินวงจรครบบน browser: เลือก → จ่าย mock → อ่าน
 
-### ✅ เกณฑ์ว่า Phase 4 เสร็จ
-- กด "ซื้อ" หรือ "เช่า" บน book detail → modal ยืนยัน mock payment เปิดขึ้น → กด "ยืนยัน (mock)" → หนังสือโผล่ใน library
-- หน้า library แสดง owned / renting (พร้อม daysLeft) / expired แยกชัดเจน
-- กด "อ่าน" → epub.js โหลด EPUB จาก presigned URL → เปิดอ่านได้ใน ≤4s
-- ปิดแล้วเปิดใหม่ → กลับมาหน้าเดิม (CFI บันทึกไว้)
-- เช่าหมดอายุ → popup "เช่าอีกครั้ง / ซื้อขาด" แทนที่จะแสดง content
+### ✅ เสร็จเมื่อ
+- กด ซื้อ/เช่า → modal จ่าย (mock, มี UI PromptPay จำลอง) → success → หนังสือเข้าชั้นหนังสือ
+- หน้าชั้นหนังสือ แยก เป็นเจ้าของ / กำลังเช่า (เหลือ X วัน) / หมดอายุ
+- กด "เปิดอ่าน" → epub.js โหลด EPUB จาก content-url, จำหน้าล่าสุด (CFI)
+- เช่าหมดอายุ → popup "เช่าอีกครั้ง / ซื้อขาด"
 
-| Task | ขึ้นกับ | ทำขนานกับ |
-|------|---------|----------|
-| **FE-003** Purchase Flow | BE-003, FE-002 | FE-004, FE-005 |
-| **FE-004** My Library | BE-004, FE-001 | FE-003, FE-005 |
+| Task | ขึ้นกับ | ขนานกับ |
+|------|---------|---------|
+| **FE-003** Purchase Flow (mock payment modal) | BE-003, FE-002 | FE-004, FE-005 |
+| **FE-004** My Library (ชั้นหนังสือ) | BE-004, FE-001 | FE-003, FE-005 |
 | **FE-005** EPUB Reader | BE-005, FE-001 | FE-003, FE-004 |
 
-> ✅ ทำขนาน: FE-003 + FE-004 + FE-005 พร้อมกัน (3 คน 3 งาน)
-
 ---
 
-## Phase 5 — Admin Import + QA Sprint 1 (Sprint 1, Week 4)
+## Phase 5 — Wallet + Cart (Week 4) — *mock topup*
 
 ### 🎯 เป้าหมาย
-ร้านมี **หนังสือจริงให้ผู้ใช้เลือก** และ Sprint 1 ผ่านการทดสอบครบทุก requirement — พร้อม demo หรือ soft launch
+โชว์ระบบเหรียญ (เติม mock → จ่ายด้วยเหรียญ) และซื้อหลายเล่มในตะกร้า ตามดีไซน์
 
-### ✅ เกณฑ์ว่า Phase 5 เสร็จ
-- มีหนังสือ ≥300 เล่ม (เป้า 500) status=published บน staging พร้อมไฟล์ EPUB จริงบน S3
-- ทุกเล่ม published เปิดอ่านได้จริงใน epub.js ไม่มีเล่มที่ไฟล์หาย
-- E2E test ผ่านครบ: FR-1 (auth), FR-2–4 (catalog), FR-5–8 (buy/rent/pay), FR-9–10 (read/library), FR-12 (no public URL), FR-17 (revenue split)
-- unit test coverage ≥80% บน payment + revenue module
-- ไม่มี critical bug เปิดค้างอยู่
+### ✅ เสร็จเมื่อ
+- เลือกแพ็กเกจเหรียญ → mock topup → coins+bonus เข้า wallet ทันที, navbar อัปเดตยอด
+- ซื้อหนังสือด้วยเหรียญ → ตัด balance ถูก (atomic) + ได้ entitlement; เหรียญไม่พอ → 402 + UI แนะนำเติม
+- ตะกร้า: เพิ่มหลายเล่ม (เฉพาะซื้อขาด) → checkout ครั้งเดียว → ได้ entitlement ครบ
+- `wallets.balance = SUM(wallet_transactions.amount)` (เช็คตอน demo, ไม่มี cron)
 
-| Task | ขึ้นกับ | หมายเหตุ |
-|------|---------|---------|
-| **BE-007** Admin Import API | BE-001, INFRA-001(S3) | สร้าง/upload/publish หนังสือ |
-| **OPS-002** Book Import Script | BE-007 | นำหนังสือ ~500 เล่มเข้าระบบ |
-| **QA-001** (Sprint 1 scope) | Phase 1–4 | FR-1–10,12,17 |
+| ลำดับ | Task | ขึ้นกับ | ขนานกับ |
+|-------|------|---------|---------|
+| 5-A | **BE-008** Wallet & Coins API (mock topup, ไม่มี reconcile cron) | DB-001, BE-001 | FE-006 |
+| 5-B | **BE-003 (update)** เพิ่มจ่ายด้วยเหรียญ | BE-008 | — |
+| 5-C | **BE-009** Cart API | BE-003(updated), BE-008 | FE-006 |
+| 5-D | **FE-006** Wallet & Topup Pages | BE-008 | — |
+| 5-E | **FE-007** Cart & Checkout | BE-009, FE-006 | — |
 
 ---
 
-## Phase 6 — Sprint 2: Wallet + ตะกร้า
-
-> เริ่มหลัง Sprint 1 stable
+## Phase 6 — Back Office (Week 5) — Publisher + Admin + Dashboard
 
 ### 🎯 เป้าหมาย
-ผู้ใช้ **เติมเหรียญ (mock) และจ่ายด้วยเหรียญได้** และ **ซื้อหลายเล่มในครั้งเดียว** — ยอดเหรียญต้องแม่นยำ 100% ไม่หาย ไม่งอก ไม่ติดลบ
+สำนักพิมพ์อัปโหลดหนังสือ + แอดมินอนุมัติ/เผยแพร่ + เห็น dashboard ส่วนแบ่งรายได้ ตามดีไซน์
 
-### ✅ เกณฑ์ว่า Phase 6 เสร็จ
-- เติมเหรียญผ่าน mock topup API (ระบุจำนวน → ยืนยัน → coins+bonus เข้า wallet ทันที)
-- กดเติมรัวหลายครั้ง → เหรียญไม่เข้าซ้ำ (idempotency ผ่าน test)
-- ซื้อหนังสือด้วยเหรียญ → wallet ตัดยอดถูก + ได้ entitlement (gateway_fee=0)
-- เหรียญไม่พอ → 402 + UI แนะนำเติม/จ่ายตรง
-- ตะกร้า: เพิ่มหลายเล่ม → checkout ครั้งเดียว → ได้ entitlement ครบทุกเล่ม
-- `wallets.balance = SUM(wallet_transactions.amount)` ทุกบัญชี (reconcile ผ่าน)
-- unit test coverage ≥80% บน wallet module
+### ✅ เสร็จเมื่อ
+- publisher สร้าง draft → upload EPUB (MinIO) → submit (`pending_review`); เห็นตัวคำนวณส่วนแบ่งสด
+- admin เห็น queue → publish (โผล่หน้าร้าน) / reject พร้อม reason / suspend (หายจากร้าน แต่ entitlement เดิมใช้ได้)
+- ทุก action มีแถวใน `audit_logs`
+- publisher dashboard เห็นเฉพาะของตน (IDOR: ผูก publisher_id จาก token); admin dashboard แสดง GMV / platform_cut / publisher_share + export CSV
 
-| ลำดับ | Task | ขึ้นกับ | ทำขนานกับ |
-|-------|------|---------|----------|
-| 6-A | **BE-008** Wallet & Coins API | DB-001, BE-001 | FE-006 |
-| 6-B | **FE-006** Wallet & Topup Pages | BE-008 | BE-009 |
-| 6-C | **BE-003 (update)** เพิ่ม coin payment | BE-008 | FE-006 |
-| 6-D | **BE-009** Cart API | BE-003(updated), BE-008 | FE-006 |
-| 6-E | **FE-007** Cart & Checkout | BE-009, FE-006 | — |
-
-> ✅ ทำขนาน: BE-008 + FE-006 เริ่มพร้อมกัน (ตกลง API contract ก่อน)
-> ⚠️ BE-009 ต้องรอ BE-008 เสร็จ (wallet balance check)
+| ลำดับ | Task | ขึ้นกับ | ขนานกับ |
+|-------|------|---------|---------|
+| 6-A | **BE-007** Admin/Seed Import (สร้าง+upload+publish, MinIO) | BE-001, INFRA-001 | — |
+| 6-B | **BE-010** Publisher Portal API | DB-001, BE-001 | FE-008 |
+| 6-C | **BE-011** Admin Approval API | DB-001, BE-010 | FE-009 |
+| 6-D | **BE-012** Dashboard & Analytics (aggregation ตรงๆ, ไม่มี read replica/Redis) | BE-003, BE-010, BE-011 | FE-010 |
+| 6-E | **FE-008** Publisher Portal UI | BE-010 | — |
+| 6-F | **FE-009** Admin Panel UI | BE-011 | — |
+| 6-G | **FE-010** Back Office Dashboard UI | BE-012 | — |
 
 ---
 
-## Phase 7 — Sprint 3: Back Office (Publisher + Admin + Dashboard)
+## Phase 7 — Seed + Smoke Test (ก่อนนำเสนอ)
 
-> ลำดับตาม BackOffice Spec §11
+### ✅ เสร็จเมื่อ
+- มีหนังสือ seed **15–30 เล่ม** published พร้อมไฟล์ EPUB จริงบน MinIO เปิดอ่านได้ทุกเล่ม
+- มี demo accounts: reader / publisher / admin เตรียมไว้ล่วงหน้า
+- เดิน flow demo จบ 1 รอบไม่มี error: register → browse → ซื้อ/เช่า (mock) → อ่าน → wallet → (publisher submit → admin approve)
 
-### 🎯 เป้าหมาย
-**สำนักพิมพ์อัปโหลดหนังสือเองได้** และ **แอดมินอนุมัติ/ระงับได้** โดยมีบันทึกทุกการกระทำ — ระบบเห็น dashboard ยอดขายและส่วนแบ่งรายได้แบบ real-time
-
-### ✅ เกณฑ์ว่า Phase 7 เสร็จ
-- สำนักพิมพ์สร้าง draft → อัปโหลด EPUB → submit → status=pending_review ใน DB
-- แอดมินเห็น queue pending_review เรียงตาม FIFO → approve → หนังสือโผล่หน้าร้านทันที
-- reject พร้อม reason → สำนักพิมพ์เห็น reason + แก้ไขแล้ว submit ใหม่ได้
-- suspend → หนังสือหายจากร้าน แต่ผู้ที่ซื้อแล้วยังเปิดอ่านได้ (entitlement ไม่กระทบ)
-- ทุก action (publish/reject/suspend/price_change) มีแถวใน `audit_logs`
-- publisher เรียก `/admin/*` หรือ dashboard ของรายอื่น → 403 (IDOR ไม่เกิด)
-- admin dashboard แสดง GMV, platform_cut, publisher_share ตรงกับ SUM(revenue_splits)
-- Export CSV ของส่วนแบ่งรายได้ดาวน์โหลดได้ถูกต้อง
-- Dashboard โหลด ≤2.5s (ใช้ read replica + Redis cache)
-
-| ลำดับ | Task | ขึ้นกับ | ทำขนานกับ |
-|-------|------|---------|----------|
-| 7-A | **BE-010** Publisher Portal API | DB-001, BE-001 | FE-008 |
-| 7-B | **BE-011** Admin Approval API | DB-001, BE-010 | FE-009 |
-| 7-C | **BE-012** Back Office Dashboard | DB-001, BE-003, BE-010, BE-011 | FE-010 |
-| 7-D | **FE-008** Publisher Portal UI | BE-010 | BE-011, FE-009 |
-| 7-E | **FE-009** Admin Panel UI | BE-011 | FE-010 |
-| 7-F | **FE-010** Back Office Dashboard UI | BE-012 | — |
-
-> ✅ ทำขนาน: BE-010 + FE-008 / BE-011 + FE-009 / BE-012 + FE-010
-
-**ลำดับ Sprint 3 ตาม BackOffice §11:**
-1. Role/guard + audit_logs → (BE-001 ขยาย, DB-001)
-2. Publisher Portal: upload+price+submit → **BE-010 + FE-008**
-3. Admin Approval: queue+publish/reject/suspend → **BE-011 + FE-009**
-4. Dashboard + aggregation queries → **BE-012 + FE-010**
-5. Revenue + Export CSV → (รวมใน BE-012 + FE-010)
+| Task | หมายเหตุ |
+|------|----------|
+| **OPS-002** Seed 15–30 เล่ม + demo accounts | สคริปต์สั้น (แทน import 500 เล่ม) |
+| **QA-001** Smoke / E2E เส้นทาง demo | ไม่มี coverage gate / load test |
 
 ---
 
-## Phase 8 — Launch Prep (ก่อนเปิดตัว)
-
-### 🎯 เป้าหมาย
-พิสูจน์ว่าระบบ **รับโหลดจริงได้** และ **ทุก requirement ผ่านครบ** — ไม่มี surprise หลังเปิดตัว
-
-### ✅ เกณฑ์ว่า Phase 8 เสร็จ (= พร้อมเปิดตัว)
-- Load test 500 concurrent users ผ่านทุก SLA: listing ≤2.5s, content-url ≤1s, epub เปิด ≤4s, error rate <0.5%
-- Load test 1,000 concurrent users ไม่ crash (อาจช้ากว่า SLA ได้แต่ต้องไม่ down)
-- QA ครบทุก FR-1–20 + NFR-8 + IDOR test ผ่าน 100%
-- Critical bugs = 0
-- Monitoring dashboard + alert ทำงานบน production environment
-- Daily reconciliation job รัน staging แล้วไม่พบ mismatch
-
-| Task | เหตุผล |
-|------|--------|
-| **OPS-001** Load Testing | จำลอง 500–1,000 concurrent users — เงื่อนไขใน PRD §12 |
-| **QA-001** (full scope) | ครบทุก FR-1–20, NFR-8 + IDOR tests |
-
----
-
-## แผนภาพ Dependency ภาพรวม
+## แผนภาพ Dependency (Demo)
 
 ```
-┌─────────── Phase 0 ────────────┐
-│ INFRA-001  Q-5,6,8             │  ← ทำขนาน
-└────────────────────────────────┘
-           │
-    ┌──────▼──────┐
-    │   Phase 1   │  DB-001 → BE-001
-    └──────┬──────┘
-           │
-    ┌──────▼──────────────┐
-    │      Phase 2        │  BE-002 ‖ FE-001 → FE-002
-    └──────┬──────────────┘
-           │
-    ┌──────▼──────────────────────────┐
-    │          Phase 3                │
-    │ BE-003 ‖ BE-006                 │
-    │ (รอ BE-003) → BE-004 ‖ BE-005   │
-    └──────┬──────────────────────────┘
-           │
-    ┌──────▼──────────────────────────┐
-    │          Phase 4                │
-    │ FE-003 ‖ FE-004 ‖ FE-005        │  ← ทำขนาน 3 คน
-    └──────┬──────────────────────────┘
-           │
-    ┌──────▼──────────────────────────┐
-    │          Phase 5                │
-    │ BE-007 → OPS-002 ‖ QA(S1)       │
-    └──────┬──────────────────────────┘
-           │
-    ┌──────▼──────────────────────────┐
-    │   Sprint 2 — Phase 6            │
-    │ BE-008 ‖ FE-006                 │
-    │ BE-009 → FE-007                 │
-    └──────┬──────────────────────────┘
-           │
-    ┌──────▼──────────────────────────┐
-    │   Sprint 3 — Phase 7            │
-    │ BE-010 ‖ FE-008                 │
-    │ BE-011 ‖ FE-009                 │
-    │ BE-012 ‖ FE-010                 │
-    └──────┬──────────────────────────┘
-           │
-    ┌──────▼──────┐
-    │   Phase 8   │  OPS-001 Load Test + QA Full
-    └─────────────┘
+INFRA-001 (Mongo+MinIO ใน Docker)
+   └► DB-001 ─► BE-001
+                 ├► BE-002 ‖ FE-001 ─► FE-002
+                 ├► BE-003(mock) ─► BE-004 ‖ BE-005
+                 │                   └► FE-003 ‖ FE-004 ‖ FE-005
+                 ├► BE-008 ‖ FE-006        (Phase 5)
+                 │   └► BE-003(update coin) ─► BE-009 ─► FE-007
+                 └► BE-007 / BE-010 ─► BE-011 ─► BE-012   (Phase 6)
+                          FE-008 / FE-009 / FE-010
+   สุดท้าย: OPS-002 (seed) ─► QA-001 (smoke)
 ```
 
 ---
 
-## สรุปสำหรับ Team Lead
-
-### คู่ที่ทำขนานได้ (ประหยัดเวลาสูง)
+## คู่ที่ทำขนานได้
 
 | คู่ | ช่วง |
 |----|------|
-| INFRA-001 + เคาะ Q-5,6,8 | Phase 0 |
 | BE-002 + FE-001 | Phase 2 |
-| BE-003 + BE-006 | Phase 3 |
 | BE-004 + BE-005 | Phase 3 |
 | FE-003 + FE-004 + FE-005 | Phase 4 |
-| BE-008 + FE-006 | Phase 6 |
-| BE-010 + FE-008 | Phase 7 |
-| BE-011 + FE-009 | Phase 7 |
-| BE-012 + FE-010 | Phase 7 |
-
-### Strict Dependencies (ห้ามข้าม)
-
-```
-INFRA-001 → DB-001 → BE-001 → BE-003 → BE-005
-DB-001 → BE-008 → BE-009
-BE-010 → BE-011 → BE-012
-```
+| BE-008 + FE-006 | Phase 5 |
+| BE-010 + FE-008 / BE-011 + FE-009 / BE-012 + FE-010 | Phase 6 |
 
 ---
 
-## ความเสี่ยงสำคัญ
+## งานที่ถูกตัดออกจาก Demo
 
-| ความเสี่ยง | ผลกระทบ | วิธีลด |
-|-----------|---------|--------|
-| DB-001 schema ผิด | รื้อ migration ยาก | Review ก่อน migrate |
-| BE-003 mock callback logic ผิด | order/entitlement ไม่ consistent | unit test idempotency ตั้งแต่แรก |
-| NFR-8 coin ledger เพี้ยน | ยอดเหรียญผิด | reconcile job ตั้งแต่ Day 1 Sprint 2 |
-| IDOR (publisher เห็นข้อมูลคนอื่น) | security breach | ผูก publisher_id จาก token ทุก query — BackOffice §9 |
-| Dashboard query หนัก | API ช้า | ใช้ read replica + Redis cache ตั้งแต่แรก |
+| Task เดิม | สถานะใน demo |
+|----------|--------------|
+| **INFRA-002** Payment Gateway Selection | แปลงเป็น **Mock Payment Adapter** (ไม่ต่อ gateway จริง) |
+| **BE-006** Rental Expiry Job (BullMQ) | ตัด → lazy expiry check ใน BE-005 |
+| **OPS-001** Load Test & Monitoring | ตัด (ไม่จำเป็นต่อการนำเสนอ) |
 
 ---
 
-## Out of Scope (เฟสถัดไป — ไม่ทำใน Sprint 1–3)
+## Out of Scope (เฟสถัดไป)
 
-| ฟีเจอร์ | อ้างอิง |
-|--------|--------|
-| Payout อัตโนมัติให้สำนักพิมพ์ | BackOffice §8 |
-| หักภาษี ณ ที่จ่าย / ใบกำกับ | BackOffice §8 |
-| Role/permission ละเอียดหลายระดับ | BackOffice §8 |
-| DRM เต็มรูปแบบ | DevSpec Full §15 |
-| อ่านออฟไลน์ | PRD §7 |
-| แอปมือถือ | PRD §7 |
-| ระบบรีวิว/แนะนำ | PRD §7 |
-| Rent-to-own (รอเคาะนโยบาย Q-5) | BE-011 |
+- Payment gateway จริง, wallet topup เงินจริง, webhook, idempotency แบบ production
+- Redis / queue / background job / reconciliation cron
+- Read replica / load balancer / monitoring / load test / coverage gate
+- Payout อัตโนมัติ, หักภาษี/ใบกำกับ, DRM เต็ม, อ่านออฟไลน์, แอปมือถือ, รีวิว/แนะนำ, rent-to-own

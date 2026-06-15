@@ -11,12 +11,12 @@
 ## งานที่ต้องทำ
 
 - [ ] `/read/:bookId` — Client Component + epub.js
-- [ ] เรียก content-url → โหลด EPUB จาก presigned URL
+- [ ] เรียก content-url → โหลด EPUB จาก MinIO presigned URL
 - [ ] เปิดเล่มแรก ≤ 4s (NFR-1)
 - [ ] โหลด/บันทึก progress (CFI) — debounce 1s
 - [ ] หน้าถัดไป/ย้อนกลับ, สารบัญ, ปรับขนาดตัวอักษร, % ที่อ่าน
 - [ ] 403 NO_ENTITLEMENT → popup "เช่าหมดอายุ — เช่าอีกครั้ง / ซื้อขาด"
-- [ ] presigned URL หมดอายุระหว่างอ่าน → ขอใหม่อัตโนมัติ
+- [ ] MinIO presigned URL หมดอายุระหว่างอ่าน → ขอใหม่อัตโนมัติ
 - [ ] ไม่มีปุ่มดาวน์โหลด EPUB (FR-12)
 - [ ] ฟอนต์ไทย + ≥360px (NFR-6)
 

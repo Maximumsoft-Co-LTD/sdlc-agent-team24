@@ -11,7 +11,7 @@
 ## Endpoint
 
 ```
-GET /api/v1/me/library
+GET /api/v1/me/library   (Next.js Route Handler)
     → { owned:[...], renting:[{book,expiresAt,daysLeft}], expired:[...] }
 ```
 
@@ -20,7 +20,7 @@ GET /api/v1/me/library
 - [ ] Query entitlements แยก owned / renting / expired
 - [ ] คำนวณ `daysLeft = ceil((expires_at - now) / 86400)`
 - [ ] Join books (title, coverUrl, author) — ไม่คืน epub_key
-- [ ] หลัง webhook → โผล่ทันที
+- [ ] หลังสร้าง order (mock paid) → โผล่ทันที
 
 ## Definition of Done
 
