@@ -25,39 +25,58 @@ export default function PublisherLayout({ children }: { children: React.ReactNod
   ]
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: '#EFE6D2' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#EEECE4' }}>
       {/* Sidebar */}
       <aside
-        className="w-52 flex-shrink-0 flex flex-col py-6 px-4"
-        style={{ backgroundColor: '#1E3329', minHeight: '100vh' }}
+        style={{
+          width: 210,
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '24px 16px',
+          backgroundColor: '#1E3329',
+          minHeight: '100vh',
+        }}
       >
-        <div className="mb-6 px-2">
-          <span
-            className="text-xs font-semibold px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: 'rgba(47,110,84,0.35)', color: '#9FCBB3' }}
-          >
+        <div style={{ marginBottom: 24, padding: '0 8px' }}>
+          <span style={{
+            fontSize: 11,
+            fontWeight: 700,
+            padding: '2px 8px',
+            borderRadius: 30,
+            backgroundColor: 'rgba(47,110,84,.35)',
+            color: '#9FCBB3',
+          }}>
             สำนักพิมพ์
           </span>
-          <p
-            className="mt-2 font-bold"
-            style={{ fontFamily: "'Trirong', serif", color: '#EDF4EF' }}
-          >
+          <p style={{
+            marginTop: 8,
+            fontFamily: "'Trirong',serif",
+            fontWeight: 700,
+            fontSize: 15,
+            color: '#EDF4EF',
+          }}>
             Publisher Hub
           </p>
         </div>
-        <nav className="flex flex-col gap-1">
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {navLinks.map(link => {
             const isActive = pathname === link.href
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                style={
-                  isActive
-                    ? { backgroundColor: 'rgba(159,203,179,0.20)', color: '#EDF4EF' }
-                    : { backgroundColor: 'transparent', color: '#9FCBB3' }
-                }
+                style={{
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  fontSize: 13.5,
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  backgroundColor: isActive ? 'rgba(159,203,179,.20)' : 'transparent',
+                  color: isActive ? '#EDF4EF' : '#93A99E',
+                  fontFamily: "'IBM Plex Sans Thai',system-ui,sans-serif",
+                }}
               >
                 {link.label}
               </Link>
@@ -67,8 +86,24 @@ export default function PublisherLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 p-6 overflow-auto">
-        {children}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+        {/* Topbar */}
+        <div style={{
+          backgroundColor: '#fff',
+          borderBottom: '1px solid #E2DECE',
+          padding: '0 24px',
+          height: 54,
+          display: 'flex',
+          alignItems: 'center',
+          flexShrink: 0,
+        }}>
+          <p style={{ fontSize: 13.5, color: '#6B6253' }}>
+            {user?.displayName} <span style={{ color: '#DDD1B8' }}>·</span> <span style={{ color: '#2F5D50' }}>สำนักพิมพ์</span>
+          </p>
+        </div>
+        <div style={{ flex: 1, padding: 24 }}>
+          {children}
+        </div>
       </div>
     </div>
   )
