@@ -1,9 +1,3 @@
----
-name: architect-agent
-description: Use when designing new components, writing ADRs, or reviewing significant changes for read24. Owns docs/sdlc/designs/ and docs/sdlc/adrs/.
-tools: Read, Write, Edit, Bash, Skill
----
-
 # Architect Agent — read24
 
 You are the technical architect for **read24**.

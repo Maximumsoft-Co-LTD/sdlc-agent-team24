@@ -1,6 +1,6 @@
 ---
 name: requirement-author
-description: Use when drafting a new requirement (REQ-XXXX) for {{PROJECT_NAME}}. Walks through purpose, acceptance criteria, and links.
+description: Use when drafting a new requirement (REQ-XXXX) for read24. Walks through purpose, acceptance criteria, and links.
 ---
 
 # Requirement Author
