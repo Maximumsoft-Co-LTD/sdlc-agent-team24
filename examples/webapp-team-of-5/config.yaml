@@ -1,8 +1,8 @@
-project_name: chore-tracker
+project_name: Read24
 description: A web app for tracking household chores across a family.
 tech_stack: [TypeScript, Next.js, Postgres, Vercel]
 team_roles:
-  - {role: backend, count: 2}
+  - {role: backend, count: 1}
   - {role: frontend, count: 1, seniority: senior}
   - {role: qa, count: 1}
   - {role: devops, count: 1}

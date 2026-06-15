@@ -4,34 +4,21 @@
 |-------|-------|
 | สถานะ | open |
 | ผู้รับผิดชอบ | DevOps |
-| อ้างอิง | DevSpec Full §2, NFR-1,2,4,7 |
+| อ้างอิง | DevSpec Full §2 |
 | บล็อก | ทุก task ในระบบ |
 
 ## งานที่ต้องทำ
 
-- [ ] PostgreSQL 15+ (primary + read replica + PgBouncer)
-- [ ] Redis (BullMQ + rate limiting + cache + dashboard cache)
-- [ ] S3 bucket **private** + CDN สำหรับ cover/EPUB
-- [ ] Staging environment
-- [ ] CI/CD pipeline (build → test → deploy)
 - [ ] Docker + docker-compose สำหรับ local dev
-- [ ] Load balancer (API: 2–3 stateless instances)
-- [ ] Monitoring: log aggregation + APM (NFR-7)
-- [ ] Secrets ใน secret manager (ห้ามใส่ใน .env ตรงๆ)
-- [ ] HTTPS ทุก endpoint (NFR-4)
-- [ ] MFA สำหรับบัญชี admin (BackOffice §9 — แนะนำ)
+- [ ] MongoDB (container)
+- [ ] MinIO (object storage สำหรับ cover/EPUB — container)
+- [ ] Next.js app (full-stack — ไม่มี backend service แยก) รันใน dev mode
+- [ ] HTTPS (ทางเลือกสำหรับ demo — ใช้ http://localhost ได้)
+- [ ] ใช้ `.env` เก็บ config/secret สำหรับ demo (ไม่ต้องมี secret manager)
 
-## ขนาดเครื่องเริ่มต้น
-
-| ส่วน | Spec |
-|------|------|
-| API server | 2–3 instances, 2 vCPU/4GB |
-| PostgreSQL | 4 vCPU/16GB + read replica (สำหรับ dashboard queries) |
-| Redis | 2GB |
-| Worker (BullMQ) | แยกจาก API |
+> หมายเหตุ: demo รันด้วย dev container เดียว ไม่มี load balancer / read replica / monitoring / APM
 
 ## Definition of Done
 
-- [ ] `docker-compose up` → local dev ทำงานครบ
-- [ ] CI/CD รัน build + test อัตโนมัติ
-- [ ] Staging เข้าถึงได้จากทีม
+- [ ] `docker-compose up` → MongoDB + MinIO + Next.js dev ขึ้นครบและเชื่อมต่อกันได้
+- [ ] ทีมเข้าถึง app ที่ localhost ได้

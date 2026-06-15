@@ -6,14 +6,14 @@
 | Sprint | 3 |
 | ผู้รับผิดชอบ | Backend Dev |
 | อ้างอิง | DevSpec Full §6,7.8, BackOffice §5,9, FR-11,18 |
-| ขึ้นกับ | DB-001, BE-001, INFRA-001(S3) |
+| ขึ้นกับ | DB-001, BE-001, INFRA-001(MinIO) |
 
 ## Endpoints
 
 ```
-POST  /api/v1/publisher/books             → 201 { id, status:"draft" }
+POST  /api/v1/publisher/books             → 201 { id, status:"draft" }   (Next.js Route Handler)
 PATCH /api/v1/publisher/books/:id         → แก้ไขขณะ draft/rejected
-POST  /api/v1/publisher/books/:id/upload-url → presigned S3 PUT URL
+POST  /api/v1/publisher/books/:id/upload-url → presigned MinIO PUT URL
 POST  /api/v1/publisher/books/:id/submit  → status→pending_review
 GET   /api/v1/publisher/books?status=     → หนังสือของฉัน + สถานะ + ยอดขาย
 GET   /api/v1/publisher/dashboard?from=&to= → KPI (ยอดขาย/เล่ม/ส่วนแบ่ง)
@@ -31,7 +31,7 @@ GET   /api/v1/publisher/revenue?from=&to= → รายละเอียด + ?
 - [ ] CRUD draft book + PATCH ขณะ draft/rejected
 - [ ] Upload EPUB via presigned URL
 - [ ] submit: ตรวจมีไฟล์ EPUB + ราคาครบ → pending_review
-- [ ] Dashboard query (อ่านจาก read replica + Redis cache TTL 1–5 นาที)
+- [ ] Dashboard query ด้วย MongoDB aggregation ตรง ๆ
 - [ ] Revenue export CSV
 - [ ] บันทึก audit_log ทุก submit/price_change
 

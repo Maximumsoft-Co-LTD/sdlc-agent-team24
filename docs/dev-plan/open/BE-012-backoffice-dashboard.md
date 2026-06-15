@@ -10,7 +10,7 @@
 
 ## Endpoints
 
-### Admin Dashboard & Management
+### Admin Dashboard & Management   (Next.js Route Handlers)
 ```
 GET /api/v1/admin/dashboard?from=&to=
     → { gmv, platformCut, publisherShare, buyCount, rentCount,
@@ -47,8 +47,7 @@ GET /api/v1/publisher/revenue?from=&to=
 ## งานที่ต้องทำ
 
 ### Performance (§6 — คิวรีหนัก)
-- [ ] ทุก aggregation query ใช้ **read replica** (ไม่ใช้ primary)
-- [ ] Cache ผล dashboard ที่ใช้บ่อย (เช่น เดือนนี้) ด้วย Redis TTL 1–5 นาที
+- [ ] ทุก aggregation query ใช้ MongoDB aggregation pipeline ตรง ๆ
 - [ ] index `orders(paid_at)` + `revenue_splits(publisher_id, created_at)`
 
 ### Security (§9 — IDOR Prevention)
@@ -72,4 +71,4 @@ GET /api/v1/publisher/revenue?from=&to=
 - [ ] Dashboard ตัวเลขตรงกับ SUM(revenue_splits) จริง (กระทบยอดได้)
 - [ ] Publisher เรียก dashboard ของรายอื่นไม่ได้ (403)
 - [ ] Export CSV ถูกต้อง + มี audit log
-- [ ] Dashboard โหลด ≤ 2.5s ที่ peak load (ใช้ read replica + cache)
+- [ ] Dashboard แสดงผลถูกต้อง

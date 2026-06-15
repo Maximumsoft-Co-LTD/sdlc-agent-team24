@@ -6,18 +6,17 @@
 | Sprint | 1 |
 | ผู้รับผิดชอบ | Frontend Dev |
 | อ้างอิง | FR-5,6,8 |
-| ขึ้นกับ | BE-003, FE-001, FE-002, INFRA-002 |
+| ขึ้นกับ | BE-003, FE-001, FE-002 |
 
 ## งานที่ต้องทำ
 
-- [ ] Purchase modal: เลือก ซื้อ/เช่า + วิธีชำระ (บัตร/QR)
-- [ ] บัตร: ใช้ gateway hosted fields (ห้ามรับ card number เอง)
-- [ ] QR: แสดง QR จาก qrPayload
-- [ ] Poll `GET /orders/:id` ทุก 2s จนสถานะ paid/failed (timeout 5 นาที)
+- [ ] Purchase modal: เลือก ซื้อ/เช่า + mock pay UI (ชำระแบบจำลอง)
+- [ ] Mock pay UI: แสดงรูป PromptPay QR จำลอง (fake) + ปุ่ม "ยืนยันชำระ (จำลอง)"
+- [ ] กดยืนยัน → เรียก `POST /orders` → คืนสถานะ paid ทันที (ไม่มี gateway / ไม่มี polling)
 - [ ] paid → redirect library หรือหน้าอ่าน
-- [ ] Error states: จ่ายล้มเหลว, DUPLICATE_ENTITLEMENT, RENT_NOT_AVAILABLE
+- [ ] Error states: DUPLICATE_ENTITLEMENT, RENT_NOT_AVAILABLE
 
 ## Definition of Done
 
-- [ ] ซื้อ/เช่าด้วย sandbox card/QR → ได้ entitlement
-- [ ] ไม่มี card number ผ่าน frontend โดยตรง
+- [ ] ซื้อ/เช่าผ่าน mock pay → ได้ entitlement ทันที
+- [ ] Error states (DUPLICATE_ENTITLEMENT, RENT_NOT_AVAILABLE) แสดงถูกต้อง

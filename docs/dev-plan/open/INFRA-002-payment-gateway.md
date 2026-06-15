@@ -1,27 +1,21 @@
-# INFRA-002 — Payment Gateway Selection & Setup
+# INFRA-002 — Mock Payment Adapter
 
 | Field | Value |
 |-------|-------|
 | สถานะ | open |
-| ผู้รับผิดชอบ | PM + DevOps |
-| อ้างอิง | DevSpec Full §2, PRD Q-1 |
+| ผู้รับผิดชอบ | Backend Dev |
+| อ้างอิง | DevSpec Full §2 |
 | บล็อก | BE-003, BE-008 |
 
 ## งานที่ต้องทำ
 
-- [ ] **เคาะ gateway** — Omise หรือ 2C2P (PRD Q-1 ต้องตัดสินใจก่อน)
-- [ ] ขอ sandbox API keys (card + QR PromptPay)
-- [ ] ลงทะเบียน webhook URL (staging)
-- [ ] ยืนยัน fee rate จริง → ตั้ง `GATEWAY_FEE_RATE`
-- [ ] ทดสอบ test card + QR ใน sandbox
-
-| Gateway | Card | QR PromptPay |
-|---------|------|-------------|
-| Omise | ✅ | ✅ |
-| 2C2P | ✅ | ✅ |
+- [ ] สร้าง mock payment module ที่มี interface เดียว: `pay()` / `topup()`
+- [ ] mock สำเร็จทันที (synchronous) และคืน `payment_ref` ปลอม
+- [ ] ให้ BE-003 และ BE-008 เรียกใช้ adapter นี้แทน gateway จริง
+- [ ] ออกแบบเป็น adapter เพื่อให้ gateway จริง (Omise/Stripe/2C2P) มาแทนภายหลังได้โดยไม่ต้องแก้ฝั่งผู้เรียก
+- [ ] (ทางเลือก) render จำลอง PromptPay QR สำหรับ UI
 
 ## Definition of Done
 
-- [ ] ได้ sandbox keys + webhook secret
-- [ ] Simulate จ่ายสำเร็จ + ล้มเหลว ผ่าน sandbox
-- [ ] Webhook signature verification ทำงานได้
+- [ ] `pay()` / `topup()` ของ mock คืนผลสำเร็จแบบ synchronous พร้อม `payment_ref` ปลอม
+- [ ] เอกสาร interface ของ adapter ชัดเจน (พร้อมแทนด้วย gateway จริงภายหลัง)
