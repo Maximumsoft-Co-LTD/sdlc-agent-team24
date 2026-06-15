@@ -114,7 +114,7 @@ export default function CartPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 26, alignItems: 'start' }}>
             {/* Left — cart items */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {cart.items.map((item: any) => (
+              {cart.items.filter((item: any) => item.book).map((item: any) => (
                 <div
                   key={item.cartItemId}
                   style={{

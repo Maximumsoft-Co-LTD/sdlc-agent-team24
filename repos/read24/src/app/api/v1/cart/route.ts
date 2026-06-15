@@ -47,11 +47,12 @@ export async function GET(request: NextRequest) {
     })
   )
 
-  const total = enriched.reduce((sum, i) => sum + i.price, 0)
+  const valid = enriched.filter((i) => i.book !== null)
+  const total = valid.reduce((sum, i) => sum + i.price, 0)
 
   return NextResponse.json({
-    items: enriched,
+    items: valid,
     total,
-    count: enriched.length,
+    count: valid.length,
   })
 }
