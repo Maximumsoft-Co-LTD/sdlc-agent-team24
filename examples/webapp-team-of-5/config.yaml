@@ -1,0 +1,12 @@
+project_name: chore-tracker
+description: A web app for tracking household chores across a family.
+tech_stack: [TypeScript, Next.js, Postgres, Vercel]
+team_roles:
+  - {role: backend, count: 2}
+  - {role: frontend, count: 1, seniority: senior}
+  - {role: qa, count: 1}
+  - {role: devops, count: 1}
+sprint_length_days: 14
+target_platform: both
+output_dir: ./chore-tracker
+sdlc_stages: [requirements, design, code, testing, deployment, operations]

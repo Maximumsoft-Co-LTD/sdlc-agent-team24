@@ -1,0 +1,12 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "{{PROJECT_DESCRIPTION}}",
+  "scripts": {
+    "sdlc:graph": "node scripts/sdlc-graph.js",
+    "sdlc:propagate": "node scripts/sdlc-propagate.js",
+    "sdlc:next-id": "node scripts/next-id.js"
+  }
+}

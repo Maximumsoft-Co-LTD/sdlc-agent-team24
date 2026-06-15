@@ -1,0 +1,10 @@
+{
+  "name": "sdlc-agent-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Scaffolds an SDLC-aware agent team for a new software project.",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}
