@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -14,6 +14,14 @@ interface Book {
 }
 
 export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-8">Loading...</div>}>
+      <SearchPageContent />
+    </Suspense>
+  )
+}
+
+function SearchPageContent() {
   const searchParams = useSearchParams()
   const q = searchParams.get('q') || ''
   const [books, setBooks] = useState<Book[]>([])
