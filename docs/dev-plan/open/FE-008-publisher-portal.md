@@ -1,37 +1,24 @@
-# FE-008 — Publisher Portal (Frontend)
+# FE-008 — Publisher Portal Pages
 
 | Field | Value |
 |-------|-------|
 | สถานะ | open |
 | Sprint | 3 |
 | ผู้รับผิดชอบ | Frontend Dev |
-| อ้างอิง | DevSpec Full §6, §7.8, FR-11, FR-18 |
+| อ้างอิง | BackOffice §3.4, FR-11,18 |
 | ขึ้นกับ | BE-010, FE-001 |
 
 ## งานที่ต้องทำ
 
-### `/publisher/books` — รายการหนังสือของฉัน
-- [ ] ตาราง: title, status (badge สีตาม status), submittedAt, publishedAt
-- [ ] Status badge: draft (grey) / pending_review (yellow) / published (green) / rejected (red) / suspended (orange)
-- [ ] ปุ่ม "เพิ่มหนังสือใหม่" → `/publisher/books/new`
-- [ ] ถ้า rejected → แสดง rejection reason + ปุ่ม "แก้ไขและส่งใหม่"
-
-### `/publisher/books/new` และ `/publisher/books/:id/edit` — ฟอร์มหนังสือ
-- [ ] ฟิลด์: title, author, description, category, priceBuy, priceRent (optional), rentDays, isExclusive
-- [ ] อัปโหลดปก (cover image preview)
-- [ ] อัปโหลดไฟล์ EPUB → เรียก `/publisher/books/:id/upload-url` → PUT ขึ้น S3 โดยตรง
-- [ ] Progress bar การอัปโหลด
-- [ ] ปุ่ม "บันทึก Draft" และ "ส่งให้รีวิว" (submit)
-
-### `/publisher/earnings` — หน้ารายได้ (FR-18)
-- [ ] สรุปรายได้รวม: gross, publisher_share
-- [ ] Filter ตาม date range
-- [ ] ตารางรายได้ต่อเล่ม: ชื่อหนังสือ, จำนวนขาย, ยอดรวม, ส่วนแบ่งที่ได้
+- [ ] `/publisher/books` — ตาราง + status badge + ปุ่มเพิ่มใหม่
+- [ ] Rejection reason แสดงชัดเจน + ปุ่ม "แก้ไขและส่งใหม่"
+- [ ] `/publisher/books/new` + `/edit/:id` — ฟอร์ม metadata + อัปโหลดปก + EPUB (progress bar)
+- [ ] ตัวคำนวณส่วนแบ่งสด: ใส่ราคา → โชว์ publisher ได้ / Read24 ได้ (BackOffice §3.2)
+- [ ] ปุ่ม "บันทึก Draft" + "ส่งให้รีวิว"
+- [ ] `/publisher/revenue` — ยอดขาย/เล่ม/ส่วนแบ่ง + date filter + Export CSV
 
 ## Definition of Done
 
-- [ ] Publisher upload → submit → เห็นสถานะ pending_review
-- [ ] หลัง admin publish → สถานะ published
-- [ ] หลัง admin reject → เห็น reason + แก้ไขและ resubmit ได้
-- [ ] Earnings ตรงกับ BE
-- [ ] `tsc --noEmit` และ `lint` ผ่าน
+- [ ] Upload → submit → pending_review
+- [ ] Rejected → เห็น reason + resubmit ได้
+- [ ] Revenue ตรงกับ BE

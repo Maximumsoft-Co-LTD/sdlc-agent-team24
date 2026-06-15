@@ -5,55 +5,39 @@
 | สถานะ | open |
 | Sprint | 3 |
 | ผู้รับผิดชอบ | Backend Dev |
-| อ้างอิง | DevSpec Full §6, §7.8, FR-11, FR-18 |
-| ขึ้นกับ | DB-001, BE-001, INFRA-001 (S3) |
+| อ้างอิง | DevSpec Full §6,7.8, BackOffice §5,9, FR-11,18 |
+| ขึ้นกับ | DB-001, BE-001, INFRA-001(S3) |
 
 ## Endpoints
 
 ```
-POST /api/v1/publisher/books
-     { title, author, description, category, priceBuy, priceRent, rentDays,
-       isExclusive, territory:"TH" }
-     → 201 { id, status:"draft" }                                            (FR-11)
-
-POST /api/v1/publisher/books/:id/upload-url
-     → 200 { uploadUrl, key }   (presigned S3 PUT URL)
-
-POST /api/v1/publisher/books/:id/submit
-     → 200 { status:"pending_review" }   (ส่งให้แอดมินรีวิว)
-
-GET  /api/v1/publisher/books
-     → { items:[{ id, title, status, submittedAt, publishedAt, rejectionReason }] }
-
-GET  /api/v1/publisher/earnings?from=&to=
-     → { totalNet, totalPublisherShare, items:[{ book, grossSales, publisherShare, period }] }
-     (FR-18 — เห็นเฉพาะ publisher_id ของตน)
+POST  /api/v1/publisher/books             → 201 { id, status:"draft" }
+PATCH /api/v1/publisher/books/:id         → แก้ไขขณะ draft/rejected
+POST  /api/v1/publisher/books/:id/upload-url → presigned S3 PUT URL
+POST  /api/v1/publisher/books/:id/submit  → status→pending_review
+GET   /api/v1/publisher/books?status=     → หนังสือของฉัน + สถานะ + ยอดขาย
+GET   /api/v1/publisher/dashboard?from=&to= → KPI (ยอดขาย/เล่ม/ส่วนแบ่ง)
+GET   /api/v1/publisher/revenue?from=&to= → รายละเอียด + ?export=csv
 ```
 
-## กฎสำคัญ
+## Security (BackOffice §9 — IDOR Prevention)
 
-- Guard: เฉพาะ `role=publisher` (403 FORBIDDEN)
-- Publisher เห็นเฉพาะหนังสือ/รายได้ของ `publisher_id` ตน
-- Status flow: `draft` → (submit) → `pending_review` → (admin) → `published` หรือ `rejected`
-- หนังสือที่ถูก `rejected` → publisher แก้ไขและ submit ใหม่ได้
+- [ ] **ทุก query ผูก `publisher_id` จาก JWT token เสมอ** — ห้ามรับ publisher_id จาก client
+- [ ] Role guard: เฉพาะ `role=publisher`
+- [ ] Export CSV: บันทึก audit_log ว่าใคร export
 
 ## งานที่ต้องทำ
 
-### FR-11 — อัปโหลดหนังสือ
-- [ ] Role guard `publisher` ทุก endpoint
-- [ ] สร้าง draft book ผูกกับ `publisher_id` ของ user
-- [ ] ออก presigned S3 PUT URL สำหรับอัปโหลด EPUB
-- [ ] `submit`: ตรวจว่ามีไฟล์ EPUB บน S3 + ราคาครบ ก่อนเปลี่ยนเป็น pending_review
-- [ ] ถ้า rejected → แสดง `rejectionReason` ใน GET /publisher/books
-
-### FR-18 — หน้ารายได้
-- [ ] Query revenue_splits ที่ `publisher_id` ตรง + join กับ orders(status=paid)
-- [ ] Filter ตาม date range (from/to)
-- [ ] สรุปยอดต่อเล่ม + รวม
+- [ ] CRUD draft book + PATCH ขณะ draft/rejected
+- [ ] Upload EPUB via presigned URL
+- [ ] submit: ตรวจมีไฟล์ EPUB + ราคาครบ → pending_review
+- [ ] Dashboard query (อ่านจาก read replica + Redis cache TTL 1–5 นาที)
+- [ ] Revenue export CSV
+- [ ] บันทึก audit_log ทุก submit/price_change
 
 ## Definition of Done
 
-- [ ] Publisher สร้าง → อัปโหลด → submit ได้ครบ flow
-- [ ] Non-publisher/admin ถูกบล็อก (403)
-- [ ] Earnings ตรงกับ SUM(revenue_splits.publisher_share) ของ publisher นั้น
-- [ ] หนังสือ rejected แสดง reason
+- [ ] Upload → submit → pending_review flow ครบ
+- [ ] เรียก dashboard ของ publisher อื่น → 403
+- [ ] Earnings ตรงกับ SUM(revenue_splits.publisher_share)
+- [ ] Export CSV ถูกต้อง
