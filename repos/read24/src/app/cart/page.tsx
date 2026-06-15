@@ -67,15 +67,33 @@ export default function CartPage() {
 
   if (success)
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <div className="text-5xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold mb-2">ซื้อสำเร็จ!</h2>
-        <p className="text-gray-600 mb-6">ได้รับหนังสือ {success.count} เล่ม เรียบร้อยแล้ว</p>
+      <div
+        className="max-w-md mx-auto px-4 py-16 text-center"
+        style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}
+      >
+        <div className="text-5xl mb-4">&#127881;</div>
+        <h2
+          className="text-2xl font-bold mb-2"
+          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+        >
+          ซื้อสำเร็จ!
+        </h2>
+        <p className="mb-6" style={{ color: '#5a5142' }}>
+          ได้รับหนังสือ {success.count} เล่ม เรียบร้อยแล้ว
+        </p>
         <div className="flex gap-3 justify-center">
-          <Link href="/library" className="bg-indigo-600 text-white px-6 py-2 rounded-xl">
+          <Link
+            href="/library"
+            className="px-6 py-2 rounded-xl font-medium"
+            style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+          >
             ชั้นหนังสือ
           </Link>
-          <Link href="/books" className="border border-gray-300 px-6 py-2 rounded-xl">
+          <Link
+            href="/books"
+            className="px-6 py-2 rounded-xl font-medium"
+            style={{ border: '1.5px solid #DDD1B8', color: '#5a5142', backgroundColor: '#FBF6EC' }}
+          >
             ซื้อเพิ่ม
           </Link>
         </div>
@@ -84,125 +102,148 @@ export default function CartPage() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-16">
-        <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
+      <div className="flex justify-center py-16" style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}>
+        <div className="animate-spin w-8 h-8 border-4 border-t-transparent rounded-full" style={{ borderColor: '#BF5A2B', borderTopColor: 'transparent' }} />
       </div>
     )
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">ตะกร้าสินค้า ({cart.count} เล่ม)</h1>
+    <div style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}>
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <h1
+          className="text-2xl font-bold mb-6"
+          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+        >
+          ตะกร้าสินค้า ({cart.count} เล่ม)
+        </h1>
 
-      {cart.items.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-4xl mb-3">🛒</p>
-          <p className="text-gray-500 mb-4">ตะกร้าว่างเปล่า</p>
-          <Link href="/books" className="text-indigo-600 hover:underline">
-            เลือกซื้อหนังสือ
-          </Link>
-        </div>
-      ) : (
-        <>
-          <div className="space-y-3 mb-6">
-            {cart.items.map((item: any) => (
-              <div
-                key={item.cartItemId}
-                className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm"
-              >
+        {cart.items.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-4xl mb-3">&#128722;</p>
+            <p className="mb-4" style={{ color: '#6B6253' }}>ตะกร้าว่างเปล่า</p>
+            <Link href="/books" className="font-medium" style={{ color: '#BF5A2B' }}>
+              เลือกซื้อหนังสือ
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-3 mb-6">
+              {cart.items.map((item: any) => (
                 <div
-                  className="w-14 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex-shrink-0 overflow-hidden"
-                  style={{ height: '72px' }}
+                  key={item.cartItemId}
+                  className="flex items-center gap-4 p-4 rounded-xl"
+                  style={{
+                    backgroundColor: '#FBF6EC',
+                    border: '1px solid #DDD1B8',
+                    boxShadow: '0 1px 4px rgba(42,36,28,0.06)',
+                  }}
                 >
-                  {item.book.cover_url && (
-                    <img src={item.book.cover_url} className="w-full h-full object-cover" alt="" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{item.book.title}</p>
-                  <p className="text-sm text-gray-500">{item.book.author}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold">฿{item.price || item.book.price_buy}</p>
-                  <button
-                    onClick={() => removeItem(item.book._id)}
-                    className="text-xs text-red-500 hover:text-red-700 mt-1"
+                  <div
+                    className="w-14 rounded-lg flex-shrink-0 overflow-hidden"
+                    style={{ height: '72px', backgroundColor: '#3D5A4A' }}
                   >
-                    ลบ
-                  </button>
+                    {item.book.cover_url && (
+                      <img src={item.book.cover_url} className="w-full h-full object-cover" alt="" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate" style={{ color: '#2A241C' }}>
+                      {item.book.title}
+                    </p>
+                    <p className="text-sm" style={{ color: '#6B6253' }}>{item.book.author}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold" style={{ color: '#2A241C' }}>
+                      ฿{item.price || item.book.price_buy}
+                    </p>
+                    <button
+                      onClick={() => removeItem(item.book._id)}
+                      className="text-xs mt-1 transition-colors"
+                      style={{ color: '#9a4632' }}
+                    >
+                      ลบ
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Total */}
+            <div
+              className="rounded-xl p-4 mb-4"
+              style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+            >
+              <div className="flex justify-between font-bold text-lg">
+                <span style={{ color: '#2A241C' }}>รวมทั้งหมด</span>
+                <span style={{ color: '#2A241C' }}>฿{cart.total?.toLocaleString()}</span>
               </div>
-            ))}
-          </div>
-
-          <div className="bg-gray-50 rounded-xl p-4 mb-4">
-            <div className="flex justify-between font-bold text-lg">
-              <span>รวมทั้งหมด</span>
-              <span>฿{cart.total?.toLocaleString()}</span>
             </div>
-          </div>
 
-          <div className="mb-4">
-            <p className="font-medium mb-2">วิธีชำระ</p>
-            <div className="space-y-2">
-              <label
-                className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer ${
-                  paymentMethod === 'mock'
-                    ? 'border-indigo-600 bg-indigo-50'
-                    : 'border-gray-200'
-                }`}
-              >
-                <input
-                  type="radio"
-                  checked={paymentMethod === 'mock'}
-                  onChange={() => setPaymentMethod('mock')}
-                />
-                <div>
-                  <p className="font-medium text-sm">PromptPay (จำลอง)</p>
-                  <p className="text-xs text-gray-500">ชำระผ่าน QR Code จำลอง</p>
-                </div>
-              </label>
-              <label
-                className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer ${
-                  (user?.balance || 0) < (cart.total || 0)
-                    ? 'opacity-50 cursor-not-allowed'
-                    : paymentMethod === 'coin'
-                    ? 'border-indigo-600 bg-indigo-50'
-                    : 'border-gray-200'
-                }`}
-              >
-                <input
-                  type="radio"
-                  disabled={(user?.balance || 0) < (cart.total || 0)}
-                  checked={paymentMethod === 'coin'}
-                  onChange={() => setPaymentMethod('coin')}
-                />
-                <div>
-                  <p className="font-medium text-sm">
-                    🪙 เหรียญ ({(user?.balance || 0).toLocaleString()} เหรียญ)
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {(user?.balance || 0) >= (cart.total || 0)
-                      ? `หักเหรียญ ${cart.total?.toLocaleString()}`
-                      : 'เหรียญไม่เพียงพอ'}
-                  </p>
-                </div>
-              </label>
+            {/* Payment method */}
+            <div className="mb-4">
+              <p className="font-medium mb-2" style={{ color: '#5a5142' }}>วิธีชำระ</p>
+              <div className="space-y-2">
+                <label
+                  className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
+                  style={{
+                    border: paymentMethod === 'mock' ? '2px solid #BF5A2B' : '2px solid #DDD1B8',
+                    backgroundColor: paymentMethod === 'mock' ? '#FBF1E2' : '#FBF6EC',
+                  }}
+                >
+                  <input
+                    type="radio"
+                    checked={paymentMethod === 'mock'}
+                    onChange={() => setPaymentMethod('mock')}
+                    style={{ accentColor: '#BF5A2B' }}
+                  />
+                  <div>
+                    <p className="font-medium text-sm" style={{ color: '#2A241C' }}>PromptPay (จำลอง)</p>
+                    <p className="text-xs" style={{ color: '#6B6253' }}>ชำระผ่าน QR Code จำลอง</p>
+                  </div>
+                </label>
+                <label
+                  className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${(user?.balance || 0) < (cart.total || 0) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  style={{
+                    border: paymentMethod === 'coin' ? '2px solid #BF5A2B' : '2px solid #DDD1B8',
+                    backgroundColor: paymentMethod === 'coin' ? '#FBF1E2' : '#FBF6EC',
+                  }}
+                >
+                  <input
+                    type="radio"
+                    disabled={(user?.balance || 0) < (cart.total || 0)}
+                    checked={paymentMethod === 'coin'}
+                    onChange={() => setPaymentMethod('coin')}
+                    style={{ accentColor: '#BF5A2B' }}
+                  />
+                  <div>
+                    <p className="font-medium text-sm" style={{ color: '#2A241C' }}>
+                      &#x1FA99; เหรียญ ({(user?.balance || 0).toLocaleString()} เหรียญ)
+                    </p>
+                    <p className="text-xs" style={{ color: '#6B6253' }}>
+                      {(user?.balance || 0) >= (cart.total || 0)
+                        ? `หักเหรียญ ${cart.total?.toLocaleString()}`
+                        : 'เหรียญไม่เพียงพอ'}
+                    </p>
+                  </div>
+                </label>
+              </div>
             </div>
-          </div>
 
-          {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
+            {error && <p className="text-sm mb-3" style={{ color: '#BF5A2B' }}>{error}</p>}
 
-          <button
-            onClick={handleCheckout}
-            disabled={checkoutLoading}
-            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {checkoutLoading
-              ? 'กำลังดำเนินการ...'
-              : `ยืนยันชำระ ฿${cart.total?.toLocaleString()}`}
-          </button>
-        </>
-      )}
+            <button
+              onClick={handleCheckout}
+              disabled={checkoutLoading}
+              className="w-full py-3 rounded-xl font-medium transition-colors disabled:opacity-50"
+              style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+            >
+              {checkoutLoading
+                ? 'กำลังดำเนินการ...'
+                : `ยืนยันชำระ ฿${cart.total?.toLocaleString()}`}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   )
 }

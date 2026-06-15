@@ -38,37 +38,105 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">สมัครสมาชิก</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อที่แสดง</label>
-            <input type="text" value={displayName} onChange={e => setDisplayName(e.target.value)} required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="ชื่อของคุณ" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="your@email.com" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="อย่างน้อย 8 ตัวอักษร" />
-          </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          <button type="submit" disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 font-medium">
-            {loading ? 'กำลังสมัคร...' : 'สมัครสมาชิก'}
-          </button>
-        </form>
-        <p className="text-center text-sm text-gray-500 mt-4">
-          มีบัญชีอยู่แล้ว? <Link href="/login" className="text-indigo-600 hover:underline">เข้าสู่ระบบ</Link>
-        </p>
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ backgroundColor: '#EFE6D2' }}
+    >
+      <div
+        className="rounded-2xl shadow-lg w-full max-w-md overflow-hidden"
+        style={{ border: '1px solid #DDD1B8' }}
+      >
+        {/* Header bar */}
+        <div
+          className="px-8 py-6 text-center"
+          style={{ backgroundColor: '#2F5D50' }}
+        >
+          <h1
+            className="text-3xl font-bold"
+            style={{ fontFamily: "'Trirong', serif", color: '#F3E9D2' }}
+          >
+            Read24
+          </h1>
+          <p className="text-sm mt-1" style={{ color: '#b3a88f' }}>สร้างบัญชีใหม่</p>
+        </div>
+
+        <div className="px-8 py-6" style={{ backgroundColor: '#FBF6EC' }}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#5a5142' }}>
+                ชื่อที่แสดง
+              </label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={e => setDisplayName(e.target.value)}
+                required
+                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{
+                  border: '1.5px solid #DDD1B8',
+                  backgroundColor: '#EFE6D2',
+                  color: '#2A241C',
+                }}
+                placeholder="ชื่อของคุณ"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#5a5142' }}>
+                อีเมล
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{
+                  border: '1.5px solid #DDD1B8',
+                  backgroundColor: '#EFE6D2',
+                  color: '#2A241C',
+                }}
+                placeholder="your@email.com"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#5a5142' }}>
+                รหัสผ่าน
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                minLength={8}
+                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{
+                  border: '1.5px solid #DDD1B8',
+                  backgroundColor: '#EFE6D2',
+                  color: '#2A241C',
+                }}
+                placeholder="อย่างน้อย 8 ตัวอักษร"
+              />
+            </div>
+            {error && (
+              <p className="text-sm" style={{ color: '#BF5A2B' }}>{error}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50"
+              style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+            >
+              {loading ? 'กำลังสมัคร...' : 'สมัครสมาชิก'}
+            </button>
+          </form>
+
+          <p className="text-center text-sm mt-4" style={{ color: '#6B6253' }}>
+            มีบัญชีอยู่แล้ว?{' '}
+            <Link href="/login" className="font-medium" style={{ color: '#BF5A2B' }}>
+              เข้าสู่ระบบ
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

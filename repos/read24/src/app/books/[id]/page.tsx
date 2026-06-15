@@ -68,75 +68,128 @@ export default function BookDetailPage() {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
+    <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: '#EFE6D2' }}>
+      <div className="animate-spin w-8 h-8 border-4 border-t-transparent rounded-full" style={{ borderColor: '#BF5A2B', borderTopColor: 'transparent' }}></div>
     </div>
   )
   if (!book) return null
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="grid md:grid-cols-[280px_1fr] gap-8">
-        <div>
-          <div className="rounded-xl overflow-hidden shadow-lg aspect-[2/3] bg-gradient-to-br from-indigo-100 to-purple-100">
-            {book.cover_url ? (
-              <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center p-6 text-center font-medium text-indigo-700">{book.title}</div>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <span className="text-sm text-indigo-600 font-medium bg-indigo-50 px-3 py-1 rounded-full">{book.category}</span>
-          <h1 className="text-2xl font-bold text-gray-900 mt-3">{book.title}</h1>
-          <p className="text-gray-500 mt-1">โดย {book.author}</p>
-          <p className="text-gray-700 mt-4 leading-relaxed">{book.description}</p>
-
-          <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-            <div className="flex items-baseline gap-2 mb-1">
-              <span className="text-2xl font-bold text-gray-900">฿{book.price_buy}</span>
-              <span className="text-gray-500 text-sm">ซื้อขาด</span>
-            </div>
-            {book.price_rent && (
-              <p className="text-gray-600 text-sm">เช่า ฿{book.price_rent} / {book.rent_days ?? 7} วัน</p>
-            )}
-          </div>
-
-          {owned ? (
-            <button onClick={() => router.push(`/read/${id}`)}
-              className="mt-4 w-full bg-green-600 text-white py-3 rounded-xl font-medium hover:bg-green-700">
-              อ่านเลย
-            </button>
-          ) : (
-            <div className="mt-4 flex flex-col gap-3">
-              <button onClick={() => { setPurchaseType('buy'); setShowPurchaseModal(true) }}
-                className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700">
-                ซื้อ ฿{book.price_buy}
-              </button>
-              {book.price_rent && (
-                <button onClick={() => { setPurchaseType('rent'); setShowPurchaseModal(true) }}
-                  className="w-full border-2 border-indigo-600 text-indigo-600 py-3 rounded-xl font-medium hover:bg-indigo-50">
-                  เช่า ฿{book.price_rent} / {book.rent_days ?? 7} วัน
-                </button>
+    <div style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="grid md:grid-cols-[280px_1fr] gap-8">
+          {/* Cover */}
+          <div>
+            <div
+              className="rounded-xl overflow-hidden shadow-lg aspect-[2/3]"
+              style={{ backgroundColor: '#3D5A4A' }}
+            >
+              {book.cover_url ? (
+                <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center p-6 text-center">
+                  <span style={{ fontFamily: "'Trirong', serif", color: '#EFE6D2', fontWeight: 600 }}>
+                    {book.title}
+                  </span>
+                </div>
               )}
-              <button onClick={handleAddToCart}
-                className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200">
-                + เพิ่มในตะกร้า
-              </button>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {showPurchaseModal && book && (
-        <PurchaseModal
-          book={book}
-          type={purchaseType}
-          onClose={() => setShowPurchaseModal(false)}
-          onSuccess={() => { setOwned(true); setShowPurchaseModal(false) }}
-        />
-      )}
+          {/* Info */}
+          <div>
+            <span
+              className="text-xs font-medium px-3 py-1 rounded-full"
+              style={{ backgroundColor: 'rgba(47,93,80,0.15)', color: '#2F5D50' }}
+            >
+              {book.category}
+            </span>
+            <h1
+              className="text-2xl font-bold mt-3"
+              style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+            >
+              {book.title}
+            </h1>
+            <p className="mt-1" style={{ color: '#6B6253' }}>โดย {book.author}</p>
+            <p className="mt-4 leading-relaxed text-sm" style={{ color: '#5a5142' }}>
+              {book.description}
+            </p>
+
+            {/* Price box */}
+            <div
+              className="mt-6 p-4 rounded-xl"
+              style={{ backgroundColor: '#FBF6EC', border: '1px solid #DDD1B8' }}
+            >
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-2xl font-bold" style={{ color: '#2A241C' }}>฿{book.price_buy}</span>
+                <span className="text-sm" style={{ color: '#6B6253' }}>ซื้อขาด</span>
+              </div>
+              {book.price_rent && (
+                <p className="text-sm" style={{ color: '#5a5142' }}>
+                  เช่า ฿{book.price_rent} / {book.rent_days ?? 7} วัน
+                </p>
+              )}
+            </div>
+
+            {owned ? (
+              <button
+                onClick={() => router.push(`/read/${id}`)}
+                className="mt-4 w-full py-3 rounded-xl font-medium transition-colors"
+                style={{ backgroundColor: '#2F6E54', color: '#EFE6D2' }}
+              >
+                อ่านเลย
+              </button>
+            ) : (
+              <div className="mt-4 flex flex-col gap-3">
+                {/* Buy option card */}
+                <button
+                  onClick={() => { setPurchaseType('buy'); setShowPurchaseModal(true) }}
+                  className="w-full py-3 rounded-xl font-medium transition-colors text-left px-4"
+                  style={{ backgroundColor: '#2A241C', color: '#EFE6D2' }}
+                >
+                  <span className="block text-sm font-semibold">ซื้อขาด</span>
+                  <span className="text-lg font-bold">฿{book.price_buy}</span>
+                </button>
+                {book.price_rent && (
+                  /* Rent option card */
+                  <button
+                    onClick={() => { setPurchaseType('rent'); setShowPurchaseModal(true) }}
+                    className="w-full py-3 rounded-xl font-medium transition-colors text-left px-4"
+                    style={{
+                      backgroundColor: '#FBEFE3',
+                      border: '2px solid #BF5A2B',
+                      color: '#2A241C',
+                    }}
+                  >
+                    <span className="block text-sm font-semibold" style={{ color: '#BF5A2B' }}>เช่า {book.rent_days ?? 7} วัน</span>
+                    <span className="text-lg font-bold">฿{book.price_rent}</span>
+                  </button>
+                )}
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full py-3 rounded-xl font-medium transition-colors"
+                  style={{
+                    backgroundColor: '#FBF6EC',
+                    border: '1.5px solid #DDD1B8',
+                    color: '#5a5142',
+                  }}
+                >
+                  + เพิ่มในตะกร้า
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {showPurchaseModal && book && (
+          <PurchaseModal
+            book={book}
+            type={purchaseType}
+            onClose={() => setShowPurchaseModal(false)}
+            onSuccess={() => { setOwned(true); setShowPurchaseModal(false) }}
+          />
+        )}
+      </div>
     </div>
   )
 }

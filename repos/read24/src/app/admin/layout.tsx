@@ -26,29 +26,57 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="inline-flex px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
-          แอดมิน
-        </span>
-        <h1 className="text-lg font-bold text-gray-800">Read24 Admin Panel</h1>
-      </div>
-      <div className="flex gap-6 mb-6 border-b border-gray-200 overflow-x-auto">
-        {navLinks.map(link => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`pb-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-              pathname === link.href
-                ? 'text-red-600 border-red-600'
-                : 'text-gray-600 hover:text-red-600 border-transparent hover:border-red-600'
-            }`}
+    <div className="flex min-h-screen" style={{ backgroundColor: '#EFE6D2' }}>
+      {/* Sidebar */}
+      <aside
+        className="w-56 flex-shrink-0 flex flex-col py-6 px-4"
+        style={{ backgroundColor: '#1E3329', minHeight: '100vh' }}
+      >
+        <div className="mb-6 px-2">
+          <span
+            className="text-xs font-semibold px-2 py-0.5 rounded-full"
+            style={{ backgroundColor: 'rgba(191,90,43,0.3)', color: '#F0A878' }}
           >
-            {link.label}
-          </Link>
-        ))}
+            แอดมิน
+          </span>
+          <p
+            className="mt-2 font-bold"
+            style={{ fontFamily: "'Trirong', serif", color: '#EDF4EF' }}
+          >
+            Read24 Admin
+          </p>
+        </div>
+        <nav className="flex flex-col gap-1">
+          {navLinks.map(link => {
+            const isActive = pathname === link.href
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                style={
+                  isActive
+                    ? {
+                        backgroundColor: 'rgba(159,203,179,0.20)',
+                        color: '#EDF4EF',
+                      }
+                    : {
+                        backgroundColor: 'transparent',
+                        color: '#9FCBB3',
+                      }
+                }
+              >
+                {link.label}
+              </Link>
+            )
+          })}
+        </nav>
+      </aside>
+
+      {/* Main content */}
+      <div className="flex-1 p-6 overflow-auto">
+        {children}
       </div>
-      {children}
     </div>
   )
 }

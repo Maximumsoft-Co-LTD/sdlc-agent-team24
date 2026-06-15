@@ -10,6 +10,14 @@ interface CoinPackage {
   price_thb: number
 }
 
+// The "best value" package is the one with the highest bonus
+function getBestValueId(packages: CoinPackage[]): string | null {
+  if (!packages.length) return null
+  return packages.reduce((best, pkg) =>
+    pkg.bonus > best.bonus ? pkg : best
+  )._id
+}
+
 export default function TopupPage() {
   const { user, accessToken, loading: authLoading, updateBalance } = useAuth()
   const [packages, setPackages] = useState<CoinPackage[]>([])
@@ -22,8 +30,10 @@ export default function TopupPage() {
     if (!authLoading && !user) router.push('/login')
     fetch('/api/v1/coin-packages')
       .then(r => r.json())
-      .then(setPackages)
+      .then(data => setPackages(data.items || []))
   }, [authLoading, user])
+
+  const bestValueId = getBestValueId(packages)
 
   const handleTopup = async () => {
     if (!selected || !accessToken) return
@@ -47,28 +57,40 @@ export default function TopupPage() {
 
   if (success)
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <div className="text-5xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold mb-2">เติมเหรียญสำเร็จ!</h2>
-        <p className="text-gray-600 mb-1">
-          ได้รับ <span className="font-bold text-indigo-600">{success.coins}</span> เหรียญ
+      <div
+        className="max-w-md mx-auto px-4 py-16 text-center"
+        style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}
+      >
+        <div className="text-5xl mb-4">&#127881;</div>
+        <h2
+          className="text-2xl font-bold mb-2"
+          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+        >
+          เติมเหรียญสำเร็จ!
+        </h2>
+        <p className="mb-1" style={{ color: '#5a5142' }}>
+          ได้รับ <span className="font-bold" style={{ color: '#BF5A2B' }}>{success.coins}</span> เหรียญ
         </p>
         {success.bonus > 0 && (
-          <p className="text-gray-600 mb-4">
-            + โบนัส <span className="font-bold text-green-600">{success.bonus}</span> เหรียญ
+          <p className="mb-4" style={{ color: '#5a5142' }}>
+            + โบนัส <span className="font-bold" style={{ color: '#2F6E54' }}>{success.bonus}</span> เหรียญ
           </p>
         )}
-        <p className="text-lg font-medium">ยอดรวม: 🪙 {success.balance?.toLocaleString()}</p>
+        <p className="text-lg font-medium" style={{ color: '#2A241C' }}>
+          ยอดรวม: &#x1FA99; {success.balance?.toLocaleString()}
+        </p>
         <div className="flex gap-3 justify-center mt-6">
           <button
             onClick={() => router.push('/wallet')}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-xl"
+            className="px-6 py-2 rounded-xl font-medium"
+            style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
           >
             ดูกระเป๋า
           </button>
           <button
             onClick={() => router.push('/books')}
-            className="border border-gray-300 px-6 py-2 rounded-xl"
+            className="px-6 py-2 rounded-xl font-medium"
+            style={{ border: '1.5px solid #DDD1B8', color: '#5a5142', backgroundColor: '#FBF6EC' }}
           >
             ซื้อหนังสือ
           </button>
@@ -77,64 +99,95 @@ export default function TopupPage() {
     )
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-2">เติมเหรียญ</h1>
-      <p className="text-gray-500 text-sm mb-6">
-        ยอดปัจจุบัน: 🪙 {(user?.balance || 0).toLocaleString()} เหรียญ
-      </p>
+    <div style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}>
+      <div className="max-w-lg mx-auto px-4 py-8">
+        <h1
+          className="text-2xl font-bold mb-1"
+          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+        >
+          เติมเหรียญ
+        </h1>
+        <p className="text-sm mb-6" style={{ color: '#6B6253' }}>
+          ยอดปัจจุบัน: &#x1FA99; {(user?.balance || 0).toLocaleString()} เหรียญ
+        </p>
 
-      <div className="grid grid-cols-1 gap-3 mb-6">
-        {packages.map(pkg => (
-          <label
-            key={pkg._id}
-            className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-              selected === pkg._id
-                ? 'border-indigo-600 bg-indigo-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <input
-              type="radio"
-              name="package"
-              value={pkg._id}
-              checked={selected === pkg._id}
-              onChange={() => setSelected(pkg._id)}
-              className="sr-only"
-            />
-            <div>
-              <p className="font-bold text-lg">🪙 {pkg.coins.toLocaleString()} เหรียญ</p>
-              {pkg.bonus > 0 && (
-                <p className="text-green-600 text-sm">+ โบนัส {pkg.bonus} เหรียญ</p>
-              )}
-            </div>
-            <div className="text-right">
-              <p className="text-xl font-bold text-gray-900">฿{pkg.price_thb}</p>
-              {pkg.bonus > 0 && (
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                  ประหยัดกว่า!
-                </span>
-              )}
-            </div>
-          </label>
-        ))}
+        <div className="grid grid-cols-1 gap-3 mb-6">
+          {packages.map(pkg => {
+            const isSelected = selected === pkg._id
+            const isBest = pkg._id === bestValueId && pkg.bonus > 0
+            return (
+              <label
+                key={pkg._id}
+                className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-colors relative"
+                style={{
+                  border: isSelected ? '2px solid #BF5A2B' : '2px solid #DDD1B8',
+                  backgroundColor: isSelected ? '#FBF1E2' : '#FBF6EC',
+                }}
+              >
+                {isBest && (
+                  <span
+                    className="absolute -top-2.5 right-3 text-xs font-bold px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+                  >
+                    คุ้มสุด!
+                  </span>
+                )}
+                <input
+                  type="radio"
+                  name="package"
+                  value={pkg._id}
+                  checked={isSelected}
+                  onChange={() => setSelected(pkg._id)}
+                  className="sr-only"
+                />
+                <div>
+                  <p className="font-bold text-lg" style={{ color: '#2A241C' }}>
+                    &#x1FA99; {pkg.coins.toLocaleString()} เหรียญ
+                  </p>
+                  {pkg.bonus > 0 && (
+                    <p className="text-sm" style={{ color: '#2F6E54' }}>
+                      + โบนัส {pkg.bonus} เหรียญ
+                    </p>
+                  )}
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-bold" style={{ color: '#2A241C' }}>฿{pkg.price_thb}</p>
+                  {pkg.bonus > 0 && (
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: 'rgba(47,110,84,0.12)', color: '#2F6E54' }}
+                    >
+                      ประหยัดกว่า!
+                    </span>
+                  )}
+                </div>
+              </label>
+            )
+          })}
+        </div>
+
+        {/* Demo notice */}
+        <div
+          className="p-4 rounded-xl mb-6 text-sm"
+          style={{ backgroundColor: 'rgba(201,154,63,0.12)', border: '1px solid #E0B45C' }}
+        >
+          <p className="font-medium mb-1" style={{ color: '#8a6a16' }}>Demo Mode</p>
+          <p style={{ color: '#8a6a16' }}>การเติมเหรียญเป็นการจำลอง — ไม่มีการชำระเงินจริง</p>
+        </div>
+
+        <button
+          onClick={handleTopup}
+          disabled={!selected || loading}
+          className="w-full py-3 rounded-xl font-medium transition-colors disabled:opacity-50"
+          style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+        >
+          {loading
+            ? 'กำลังเติมเหรียญ...'
+            : selected
+            ? `เติมเหรียญ ฿${packages.find(p => p._id === selected)?.price_thb}`
+            : 'เลือกแพ็กเกจ'}
+        </button>
       </div>
-
-      <div className="p-4 bg-yellow-50 rounded-xl mb-6 text-sm text-yellow-800">
-        <p className="font-medium">🎮 Demo Mode</p>
-        <p>การเติมเหรียญเป็นการจำลอง — ไม่มีการชำระเงินจริง</p>
-      </div>
-
-      <button
-        onClick={handleTopup}
-        disabled={!selected || loading}
-        className="w-full bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-50"
-      >
-        {loading
-          ? 'กำลังเติมเหรียญ...'
-          : selected
-          ? `เติมเหรียญ ฿${packages.find(p => p._id === selected)?.price_thb}`
-          : 'เลือกแพ็กเกจ'}
-      </button>
     </div>
   )
 }

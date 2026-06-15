@@ -1,3 +1,4 @@
+import * as fs from 'fs'
 import { MongoClient, ObjectId } from 'mongodb'
 import { S3Client, PutObjectCommand, HeadBucketCommand, CreateBucketCommand } from '@aws-sdk/client-s3'
 
@@ -37,7 +38,7 @@ function createMinimalEpub(title: string, author: string): Buffer {
   return Buffer.from(htmlContent, 'utf-8')
 }
 
-const DEMO_BOOKS = [
+const DEMO_BOOKS: { title: string; author: string; category: string; price_buy: number; price_rent: number | null; description: string; epubPath?: string }[] = [
   { title: 'ศิลปะการเป็นผู้นำ', author: 'ดร.สมชาย ใจดี', category: 'ธุรกิจ', price_buy: 199, price_rent: 49, description: 'หนังสือแนะแนวการพัฒนาภาวะผู้นำสำหรับยุคดิจิทัล ครอบคลุมทักษะการสื่อสาร การตัดสินใจ และการสร้างทีมงาน' },
   { title: 'ปรัชญาสโตอิก', author: 'มาร์คัส ออเรลิอัส (แปลโดย สมหมาย)', category: 'การศึกษา', price_buy: 149, price_rent: 39, description: 'ปรัชญาโบราณที่ช่วยให้รับมือกับความท้าทายในชีวิตประจำวัน' },
   { title: 'สวนผักในเมือง', author: 'นริศรา เขียวใส', category: 'สุขภาพ', price_buy: 129, price_rent: null, description: 'คู่มือปลูกผักอินทรีย์สำหรับคนเมือง พร้อมเทคนิคและวิธีการดูแล' },
@@ -52,7 +53,7 @@ const DEMO_BOOKS = [
   { title: 'เดินทางฝ่าแดนใต้', author: 'ยุทธนา ล่องใต้', category: 'ท่องเที่ยว', price_buy: 149, price_rent: null, description: 'สำรวจความงามและวัฒนธรรมอันหลากหลายของภาคใต้ไทย' },
   { title: 'จิตวิทยาความสุข', author: 'รศ.ดร.ประภาพร จิตดี', category: 'สุขภาพ', price_buy: 219, price_rent: 55, description: 'ศาสตร์แห่งความสุขจากงานวิจัยด้านจิตวิทยาเชิงบวก วิธีสร้างความสุขที่ยั่งยืน' },
   { title: 'ธุรกิจสตาร์ทอัพไทย', author: 'ไพบูลย์ สตาร์ทอัพ', category: 'ธุรกิจ', price_buy: 279, price_rent: 69, description: 'เรื่องราวความสำเร็จและบทเรียนจากสตาร์ทอัพไทย 20 บริษัท' },
-  { title: 'กลอนไทยร่วมสมัย', author: 'คณะกวีไทย', category: 'นิยาย', price_buy: 129, price_rent: 35, description: 'รวมบทกวีร่วมสมัยจากกวีไทยรุ่นใหม่ สะท้อนสังคมและวัฒนธรรมไทยยุคปัจจุบัน' },
+  { title: 'Before the Coffee Gets Cold', author: 'Toshikazu Kawaguchi', category: 'นิยาย', price_buy: 179, price_rent: 45, description: 'นิยายสุดประทับใจจากญี่ปุ่น เรื่องราวของร้านกาแฟลึกลับในโตเกียวที่ลูกค้าสามารถย้อนเวลากลับไปพบกับคนที่ตนรัก แต่มีกฎที่ต้องปฏิบัติตามอย่างเคร่งครัด', epubPath: '/Users/jay/Downloads/Before the Coffee Gets Cold - Toshikazu Kawaguchi.epub' },
 ]
 
 async function main() {
@@ -111,8 +112,10 @@ async function main() {
     const bookId = new ObjectId()
     const epubKey = `books/${bookId.toString()}/book.epub`
 
-    // Upload placeholder EPUB (HTML content served with epub mime type)
-    const epubContent = createMinimalEpub(bookData.title, bookData.author)
+    // Upload EPUB — use real file if epubPath provided, otherwise generate placeholder
+    const epubContent = bookData.epubPath && fs.existsSync(bookData.epubPath)
+      ? fs.readFileSync(bookData.epubPath)
+      : createMinimalEpub(bookData.title, bookData.author)
     try {
       await s3.send(new PutObjectCommand({
         Bucket: BUCKET,

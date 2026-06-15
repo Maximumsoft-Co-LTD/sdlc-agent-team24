@@ -57,59 +57,138 @@ export default function LibraryPage() {
   const items = library[activeTab] || []
 
   if (loading || authLoading) return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
+    <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: '#EFE6D2' }}>
+      <div className="animate-spin w-8 h-8 border-4 border-t-transparent rounded-full" style={{ borderColor: '#BF5A2B', borderTopColor: 'transparent' }}></div>
     </div>
   )
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">ชั้นหนังสือของฉัน</h1>
+    <div style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <h1
+          className="text-2xl font-bold mb-6"
+          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+        >
+          ชั้นหนังสือของฉัน
+        </h1>
 
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6 w-fit">
-        {tabs.map(tab => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>
-            {tab.label}
-            {tab.count > 0 && <span className="ml-1.5 text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full">{tab.count}</span>}
-          </button>
-        ))}
-      </div>
-
-      {items.length === 0 ? (
-        <div className="text-center py-16 text-gray-500">
-          <p className="text-4xl mb-3">📚</p>
-          <p>ยังไม่มีหนังสือ</p>
-          <Link href="/books" className="mt-3 inline-block text-indigo-600 hover:underline">เลือกซื้อหนังสือ</Link>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {items.map((item: LibraryItem) => (
-            <div key={item.entitlementId} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="w-16 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex-shrink-0 overflow-hidden">
-                {item.book.cover_url && <img src={item.book.cover_url} className="w-full h-full object-cover" alt="" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-900 truncate">{item.book.title}</h3>
-                <p className="text-sm text-gray-500">{item.book.author}</p>
-                {activeTab === 'renting' && item.daysLeft !== null && item.daysLeft > 0 && (
-                  <p className="text-sm text-orange-600 mt-1">เหลืออีก {item.daysLeft} วัน</p>
-                )}
-                {activeTab === 'expired' && (
-                  <p className="text-sm text-red-500 mt-1">หมดอายุแล้ว</p>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {activeTab === 'expired' ? (
-                  <Link href={`/books/${item.book._id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700">เช่าอีกครั้ง</Link>
-                ) : (
-                  <Link href={`/read/${item.book._id}`} className="text-sm bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700">อ่าน</Link>
-                )}
-              </div>
-            </div>
+        {/* Tab pills */}
+        <div className="flex gap-1 p-1 rounded-full w-fit mb-6" style={{ backgroundColor: '#DDD1B8' }}>
+          {tabs.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className="px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              style={
+                activeTab === tab.key
+                  ? { backgroundColor: '#2A241C', color: '#EFE6D2' }
+                  : { backgroundColor: 'transparent', color: '#6B6253' }
+              }
+            >
+              {tab.label}
+              {tab.count > 0 && (
+                <span
+                  className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full"
+                  style={
+                    activeTab === tab.key
+                      ? { backgroundColor: 'rgba(239,230,210,0.2)', color: '#EFE6D2' }
+                      : { backgroundColor: 'rgba(42,36,28,0.1)', color: '#5a5142' }
+                  }
+                >
+                  {tab.count}
+                </span>
+              )}
+            </button>
           ))}
         </div>
-      )}
+
+        {items.length === 0 ? (
+          <div className="text-center py-16" style={{ color: '#6B6253' }}>
+            <p className="text-4xl mb-3">&#128218;</p>
+            <p>ยังไม่มีหนังสือ</p>
+            <Link
+              href="/books"
+              className="mt-3 inline-block font-medium"
+              style={{ color: '#BF5A2B' }}
+            >
+              เลือกซื้อหนังสือ
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {items.map((item: LibraryItem) => (
+              <div
+                key={item.entitlementId}
+                className="flex items-center gap-4 p-4 rounded-xl"
+                style={{
+                  backgroundColor: '#FBF6EC',
+                  border: '1px solid #DDD1B8',
+                  boxShadow: '0 1px 4px rgba(42,36,28,0.06)',
+                }}
+              >
+                <div
+                  className="w-16 h-20 rounded-lg flex-shrink-0 overflow-hidden"
+                  style={{ backgroundColor: '#3D5A4A' }}
+                >
+                  {item.book.cover_url && (
+                    <img src={item.book.cover_url} className="w-full h-full object-cover" alt="" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3
+                    className="font-medium truncate"
+                    style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+                  >
+                    {item.book.title}
+                  </h3>
+                  <p className="text-sm" style={{ color: '#6B6253' }}>{item.book.author}</p>
+                  {activeTab === 'renting' && item.daysLeft !== null && item.daysLeft > 0 && (
+                    <div className="mt-1.5">
+                      <div
+                        className="h-1.5 rounded-full mb-1"
+                        style={{ backgroundColor: '#DDD1B8', maxWidth: '120px' }}
+                      >
+                        <div
+                          className="h-1.5 rounded-full"
+                          style={{
+                            backgroundColor: '#BF5A2B',
+                            width: `${Math.min(100, (item.daysLeft / 7) * 100)}%`,
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs" style={{ color: '#BF5A2B' }}>
+                        เหลืออีก {item.daysLeft} วัน
+                      </p>
+                    </div>
+                  )}
+                  {activeTab === 'expired' && (
+                    <p className="text-sm mt-1" style={{ color: '#9a4632' }}>หมดอายุแล้ว</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {activeTab === 'expired' ? (
+                    <Link
+                      href={`/books/${item.book._id}`}
+                      className="text-sm px-3 py-1.5 rounded-lg font-medium"
+                      style={{ backgroundColor: '#FBF1E2', border: '1.5px solid #BF5A2B', color: '#BF5A2B' }}
+                    >
+                      เช่าอีกครั้ง
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/read/${item.book._id}`}
+                      className="text-sm px-3 py-1.5 rounded-lg font-medium"
+                      style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+                    >
+                      อ่าน
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

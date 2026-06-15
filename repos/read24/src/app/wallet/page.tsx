@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function WalletPage() {
-  const { user, accessToken, loading: authLoading, updateBalance } = useAuth()
+  const { user, accessToken, loading: authLoading } = useAuth()
   const [transactions, setTransactions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -41,73 +41,97 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">กระเป๋าเหรียญ</h1>
-        <Link
-          href="/wallet/topup"
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium"
+    <div style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}>
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1
+            className="text-2xl font-bold"
+            style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+          >
+            กระเป๋าเหรียญ
+          </h1>
+          <Link
+            href="/wallet/topup"
+            className="px-4 py-2 rounded-lg font-medium text-sm"
+            style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+          >
+            + เติมเหรียญ
+          </Link>
+        </div>
+
+        {/* Balance card */}
+        <div
+          className="rounded-2xl p-6 mb-6"
+          style={{ backgroundColor: '#2F5D50' }}
         >
-          + เติมเหรียญ
-        </Link>
-      </div>
-
-      <div className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-2xl p-6 mb-6">
-        <p className="text-indigo-200 text-sm mb-1">ยอดเหรียญปัจจุบัน</p>
-        <p className="text-4xl font-bold">🪙 {(user?.balance || 0).toLocaleString()}</p>
-        <p className="text-indigo-200 text-sm mt-2">เหรียญ</p>
-      </div>
-
-      <h2 className="text-lg font-semibold text-gray-900 mb-3">ประวัติการทำรายการ</h2>
-
-      {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
-          ))}
+          <p className="text-sm mb-1" style={{ color: '#b3a88f' }}>ยอดเหรียญปัจจุบัน</p>
+          <p className="text-4xl font-bold" style={{ color: '#D9A441' }}>
+            &#x1FA99; {(user?.balance || 0).toLocaleString()}
+          </p>
+          <p className="text-sm mt-2" style={{ color: '#b3a88f' }}>เหรียญ</p>
         </div>
-      ) : transactions.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">ยังไม่มีรายการ</p>
-      ) : (
-        <div className="space-y-2">
-          {transactions.map((tx: any) => (
-            <div
-              key={tx._id}
-              className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-sm"
-            >
-              <div>
-                <p className="font-medium text-gray-900">{typeLabel[tx.type] || tx.type}</p>
-                <p className="text-xs text-gray-500">
-                  {new Date(tx.created_at).toLocaleDateString('th-TH', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
+
+        <h2 className="text-lg font-semibold mb-3" style={{ color: '#2A241C' }}>
+          ประวัติการทำรายการ
+        </h2>
+
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 rounded-xl animate-pulse" style={{ backgroundColor: '#DDD1B8' }} />
+            ))}
+          </div>
+        ) : transactions.length === 0 ? (
+          <p className="text-center py-8" style={{ color: '#6B6253' }}>ยังไม่มีรายการ</p>
+        ) : (
+          <div className="space-y-2">
+            {transactions.map((tx: any) => (
+              <div
+                key={tx._id}
+                className="flex items-center justify-between p-4 rounded-xl"
+                style={{
+                  backgroundColor: '#FBF6EC',
+                  border: '1px solid #DDD1B8',
+                  boxShadow: '0 1px 3px rgba(42,36,28,0.05)',
+                }}
+              >
+                <div>
+                  <p className="font-medium" style={{ color: '#2A241C' }}>
+                    {typeLabel[tx.type] || tx.type}
+                  </p>
+                  <p className="text-xs" style={{ color: '#6B6253' }}>
+                    {new Date(tx.created_at).toLocaleDateString('th-TH', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold" style={{ color: tx.amount > 0 ? '#2F6E54' : '#BF5A2B' }}>
+                    {tx.amount > 0 ? '+' : ''}
+                    {tx.amount.toLocaleString()} &#x1FA99;
+                  </p>
+                  <p className="text-xs" style={{ color: '#6B6253' }}>
+                    คงเหลือ {tx.balance_after?.toLocaleString() || '-'}
+                  </p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className={`font-bold ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {tx.amount > 0 ? '+' : ''}
-                  {tx.amount.toLocaleString()} 🪙
-                </p>
-                <p className="text-xs text-gray-400">
-                  คงเหลือ {tx.balance_after?.toLocaleString() || '-'}
-                </p>
-              </div>
-            </div>
-          ))}
-          {nextCursor && (
-            <button
-              onClick={() => fetchTransactions(nextCursor)}
-              className="w-full text-indigo-600 py-2 text-sm hover:underline"
-            >
-              โหลดเพิ่มเติม
-            </button>
-          )}
-        </div>
-      )}
+            ))}
+            {nextCursor && (
+              <button
+                onClick={() => fetchTransactions(nextCursor)}
+                className="w-full py-2 text-sm font-medium"
+                style={{ color: '#BF5A2B' }}
+              >
+                โหลดเพิ่มเติม
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

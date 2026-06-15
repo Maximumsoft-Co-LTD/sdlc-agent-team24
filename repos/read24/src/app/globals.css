@@ -1,3 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Trirong:ital,wght@0,400;0,600;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --forest-dark: #2F5D50;
+  --forest-deeper: #1E3329;
+  --ink-dark: #25303A;
+  --cream: #EFE6D2;
+  --cream-light: #FBF6EC;
+  --cream-warm: #FBF1E2;
+  --text-dark: #2A241C;
+  --text-mid: #5a5142;
+  --text-muted: #6B6253;
+  --text-forest-inactive: #b3a88f;
+  --orange-red: #BF5A2B;
+  --orange-light: #F0A878;
+  --gold: #C99A3F;
+  --gold-mid: #D9A441;
+  --gold-light: #E0B45C;
+  --green-mid: #2F6E54;
+  --green-muted: #9FCBB3;
+  --border-cream: #DDD1B8;
+  --border-warm: #E0D5BE;
+}
+
+body {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  background-color: #EFE6D2;
+  color: #2A241C;
+}
+
+h1, h2, h3, .font-serif {
+  font-family: 'Trirong', serif;
+}
