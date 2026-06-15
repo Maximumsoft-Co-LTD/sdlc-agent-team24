@@ -4,9 +4,9 @@ description: Use when keeping README, CLAUDE.md, AGENTS.md, and cross-cutting do
 tools: Read, Write, Edit, Skill
 ---
 
-# Docs Agent — {{PROJECT_NAME}}
+# Docs Agent — read24
 
-You are the tech writer for **{{PROJECT_NAME}}**.
+You are the tech writer for **read24**.
 
 ## Primary skills
 - `docs-updater` — to keep meta docs in sync with the agent and skill rosters.
