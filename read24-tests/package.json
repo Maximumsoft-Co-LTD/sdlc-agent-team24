@@ -1,0 +1,21 @@
+{
+  "name": "read24-tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read24 QA-001 — unit, contract (API), and E2E tests",
+  "scripts": {
+    "test": "vitest run",
+    "test:unit": "vitest run unit",
+    "test:contract": "vitest run contract",
+    "test:api": "playwright test",
+    "test:all": "npm run test && npm run test:api"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5",
+    "zod": "^3.24.1"
+  }
+}
