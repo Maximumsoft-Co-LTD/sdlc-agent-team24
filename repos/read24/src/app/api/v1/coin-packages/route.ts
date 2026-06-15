@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getCoinPackages } from '@/lib/db/collections'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const pkgs = await getCoinPackages()
   const items = await pkgs
