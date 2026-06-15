@@ -34,7 +34,7 @@ export async function loginAs(
     user: {
       email: user.email,
       role: user.role,
-      id: body?.data?.user?.id,
+      id: body?.data?.user?.id ?? body?.user?.id,
     },
   };
 }

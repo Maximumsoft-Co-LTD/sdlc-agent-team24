@@ -9,6 +9,8 @@
     "test:unit": "vitest run unit",
     "test:contract": "vitest run contract",
     "test:api": "playwright test",
+    "test:e2e": "playwright test e2e/",
+    "test:post-deploy": "npm run test && npm run test:e2e",
     "test:all": "npm run test && npm run test:api"
   },
   "devDependencies": {

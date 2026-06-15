@@ -2,6 +2,9 @@ node_modules/
 .DS_Store
 *.log
 
+# Local test target URL (copy from read24-tests/.env.example)
+read24-tests/.env
+
 # Per-task git worktrees (see GIT_WORKFLOW.md)
 .worktrees/
 

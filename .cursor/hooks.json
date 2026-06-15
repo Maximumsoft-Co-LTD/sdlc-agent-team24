@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterShellExecution": [
+      {
+        "command": ".cursor/hooks/run-read24-tests-after-deploy.sh",
+        "matcher": "deploy|kubectl apply|kubectl rollout|helm upgrade|helm install|gcloud run deploy|read24-post-deploy",
+        "timeout": 600
+      }
+    ]
+  }
+}

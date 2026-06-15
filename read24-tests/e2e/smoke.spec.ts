@@ -14,7 +14,10 @@ test.describe('E2E smoke — QA-001 §3', () => {
     const booksRes = await request.get(apiPath('/books?limit=5'));
     expect(booksRes.ok()).toBeTruthy();
 
-    const bookId = (await booksRes.json()).data?.items?.[0]?.id;
+    const booksBody = await booksRes.json();
+    const items = booksBody.data?.items ?? booksBody.items ?? [];
+    const firstBook = items[0] as { id?: string; _id?: string } | undefined;
+    const bookId = firstBook?.id ?? firstBook?._id;
     test.skip(!bookId, 'No published books');
 
     const orderRes = await request.post(apiPath('/orders'), {
@@ -23,7 +26,7 @@ test.describe('E2E smoke — QA-001 §3', () => {
     });
     expect([200, 201, 409]).toContain(orderRes.status());
 
-    const libRes = await request.get(apiPath('/library'), { headers });
+    const libRes = await request.get(apiPath('/me/library'), { headers });
     expect(libRes.ok()).toBeTruthy();
   });
 });
