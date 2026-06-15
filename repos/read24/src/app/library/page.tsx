@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
-type Tab = 'owned' | 'renting' | 'expired'
+type Tab = 'renting' | 'owned' | 'expired'
 
 interface LibraryItem {
   entitlementId: string
@@ -26,11 +26,38 @@ interface Library {
   expired: LibraryItem[]
 }
 
+const COVER_PALETTES: Record<string, { bg: string }> = {
+  'นิยาย':      { bg: '#2F5D50' },
+  'ไซไฟ':       { bg: '#2C3E63' },
+  'สืบสวน':     { bg: '#25303A' },
+  'ธุรกิจ':     { bg: '#5B6E86' },
+}
+function getCoverBg(category?: string) {
+  return category && COVER_PALETTES[category] ? COVER_PALETTES[category].bg : '#4A5568'
+}
+
+function CoverThumb({ item, size = 80 }: { item: LibraryItem; size?: number }) {
+  return (
+    <div style={{ width: size, aspectRatio: '2/3', borderRadius: 6, overflow: 'hidden', flexShrink: 0, backgroundColor: getCoverBg() }}>
+      {item.book.cover_url
+        ? <img src={item.book.cover_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+        : <div style={{ width: '100%', height: '100%', background: '#5B6E86' }} />
+      }
+    </div>
+  )
+}
+
+const TAB_DOTS: Record<Tab, string> = {
+  renting: '#BF5A2B',
+  owned:   '#2F5D50',
+  expired: '#8A7F68',
+}
+
 export default function LibraryPage() {
   const { user, accessToken, loading: authLoading } = useAuth()
   const [library, setLibrary] = useState<Library>({ owned: [], renting: [], expired: [] })
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<Tab>('owned')
+  const [activeTab, setActiveTab] = useState<Tab>('renting')
   const router = useRouter()
 
   useEffect(() => {
@@ -49,144 +76,227 @@ export default function LibraryPage() {
   useEffect(() => { if (accessToken) fetchLibrary() }, [accessToken])
 
   const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: 'owned', label: 'ซื้อแล้ว', count: library.owned.length },
     { key: 'renting', label: 'กำลังเช่า', count: library.renting.length },
-    { key: 'expired', label: 'หมดอายุ', count: library.expired.length },
+    { key: 'owned',   label: 'เป็นเจ้าของ', count: library.owned.length },
+    { key: 'expired', label: 'หมดอายุ',    count: library.expired.length },
   ]
 
   const items = library[activeTab] || []
 
   if (loading || authLoading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: '#EFE6D2' }}>
-      <div className="animate-spin w-8 h-8 border-4 border-t-transparent rounded-full" style={{ borderColor: '#BF5A2B', borderTopColor: 'transparent' }}></div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#ECE3D2' }}>
+      <div style={{ width: 32, height: 32, border: '4px solid #BF5A2B', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
     </div>
   )
 
   return (
-    <div style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}>
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1
-          className="text-2xl font-bold mb-6"
-          style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
-        >
+    <div style={{ backgroundColor: '#ECE3D2', minHeight: '100vh' }}>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 22px' }}>
+        <h1 style={{ fontFamily: "'Trirong',serif", fontSize: 26, fontWeight: 700, color: '#2A241C', marginBottom: 24 }}>
           ชั้นหนังสือของฉัน
         </h1>
 
-        {/* Tab pills */}
-        <div className="flex gap-1 p-1 rounded-full w-fit mb-6" style={{ backgroundColor: '#DDD1B8' }}>
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className="px-4 py-2 rounded-full text-sm font-medium transition-colors"
-              style={
-                activeTab === tab.key
-                  ? { backgroundColor: '#2A241C', color: '#EFE6D2' }
-                  : { backgroundColor: 'transparent', color: '#6B6253' }
-              }
-            >
-              {tab.label}
-              {tab.count > 0 && (
-                <span
-                  className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full"
-                  style={
-                    activeTab === tab.key
-                      ? { backgroundColor: 'rgba(239,230,210,0.2)', color: '#EFE6D2' }
-                      : { backgroundColor: 'rgba(42,36,28,0.1)', color: '#5a5142' }
-                  }
-                >
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          ))}
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 28 }}>
+          {tabs.map(tab => {
+            const isActive = activeTab === tab.key
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  padding: '9px 18px',
+                  borderRadius: 30,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  border: 'none',
+                  backgroundColor: isActive ? '#2A241C' : 'transparent',
+                  color: isActive ? '#FBF6EC' : '#6B6253',
+                  fontFamily: "'IBM Plex Sans Thai',system-ui,sans-serif",
+                  transition: 'all .12s',
+                }}
+              >
+                <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: TAB_DOTS[tab.key], flexShrink: 0 }} />
+                {tab.label}
+                {tab.count > 0 && (
+                  <span style={{
+                    fontSize: 11, fontWeight: 700,
+                    padding: '1px 6px', borderRadius: 30,
+                    backgroundColor: isActive ? 'rgba(251,246,236,.2)' : 'rgba(42,36,28,.1)',
+                    color: isActive ? '#FBF6EC' : '#4A4234',
+                  }}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </div>
 
         {items.length === 0 ? (
-          <div className="text-center py-16" style={{ color: '#6B6253' }}>
-            <p className="text-4xl mb-3">&#128218;</p>
-            <p>ยังไม่มีหนังสือ</p>
-            <Link
-              href="/books"
-              className="mt-3 inline-block font-medium"
-              style={{ color: '#BF5A2B' }}
-            >
+          <div style={{ textAlign: 'center', padding: '80px 0', color: '#6B6253' }}>
+            <p style={{ fontSize: 44, marginBottom: 12 }}>📚</p>
+            <p style={{ fontSize: 15, marginBottom: 20 }}>ยังไม่มีหนังสือ</p>
+            <Link href="/books" style={{ display: 'inline-block', padding: '12px 28px', borderRadius: 10, backgroundColor: '#BF5A2B', color: '#FBF6EC', textDecoration: 'none', fontWeight: 600 }}>
               เลือกซื้อหนังสือ
             </Link>
           </div>
         ) : (
-          <div className="space-y-3">
-            {items.map((item: LibraryItem) => (
-              <div
-                key={item.entitlementId}
-                className="flex items-center gap-4 p-4 rounded-xl"
-                style={{
-                  backgroundColor: '#FBF6EC',
-                  border: '1px solid #DDD1B8',
-                  boxShadow: '0 1px 4px rgba(42,36,28,0.06)',
-                }}
-              >
-                <div
-                  className="w-16 h-20 rounded-lg flex-shrink-0 overflow-hidden"
-                  style={{ backgroundColor: '#3D5A4A' }}
-                >
-                  {item.book.cover_url && (
-                    <img src={item.book.cover_url} className="w-full h-full object-cover" alt="" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3
-                    className="font-medium truncate"
-                    style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
+          <>
+            {/* RENTING — horizontal cards with progress */}
+            {activeTab === 'renting' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {items.map(item => (
+                  <div
+                    key={item.entitlementId}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                      padding: '14px 16px',
+                      borderRadius: 14,
+                      backgroundColor: '#FBF6EC',
+                      border: '1px solid #E0D5BE',
+                      boxShadow: '0 1px 4px rgba(42,36,28,.06)',
+                    }}
                   >
-                    {item.book.title}
-                  </h3>
-                  <p className="text-sm" style={{ color: '#6B6253' }}>{item.book.author}</p>
-                  {activeTab === 'renting' && item.daysLeft !== null && item.daysLeft > 0 && (
-                    <div className="mt-1.5">
-                      <div
-                        className="h-1.5 rounded-full mb-1"
-                        style={{ backgroundColor: '#DDD1B8', maxWidth: '120px' }}
-                      >
-                        <div
-                          className="h-1.5 rounded-full"
-                          style={{
-                            backgroundColor: '#BF5A2B',
-                            width: `${Math.min(100, (item.daysLeft / 7) * 100)}%`,
-                          }}
-                        />
-                      </div>
-                      <p className="text-xs" style={{ color: '#BF5A2B' }}>
-                        เหลืออีก {item.daysLeft} วัน
-                      </p>
+                    <CoverThumb item={item} size={80} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ fontFamily: "'Trirong',serif", fontSize: 16, fontWeight: 600, color: '#2A241C', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}>
+                        {item.book.title}
+                      </h3>
+                      <p style={{ fontSize: 13, color: '#6B6253', marginBottom: 10 }}>{item.book.author}</p>
+                      {item.daysLeft !== null && item.daysLeft > 0 && (
+                        <>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 600, color: '#BF5A2B', backgroundColor: '#F7E4D5', borderRadius: 30, padding: '3px 10px', marginBottom: 8 }}>
+                            ⏳ เหลือ {item.daysLeft} วัน
+                          </span>
+                          <div style={{ height: 5, borderRadius: 99, backgroundColor: '#E0D5BE', maxWidth: 140 }}>
+                            <div style={{ height: '100%', borderRadius: 99, backgroundColor: '#BF5A2B', width: `${Math.min(100, (item.daysLeft / 7) * 100)}%` }} />
+                          </div>
+                        </>
+                      )}
+                      {item.daysLeft !== null && item.daysLeft <= 0 && (
+                        <p style={{ fontSize: 13, color: '#9A4632' }}>หมดอายุแล้ว</p>
+                      )}
                     </div>
-                  )}
-                  {activeTab === 'expired' && (
-                    <p className="text-sm mt-1" style={{ color: '#9a4632' }}>หมดอายุแล้ว</p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  {activeTab === 'expired' ? (
-                    <Link
-                      href={`/books/${item.book._id}`}
-                      className="text-sm px-3 py-1.5 rounded-lg font-medium"
-                      style={{ backgroundColor: '#FBF1E2', border: '1.5px solid #BF5A2B', color: '#BF5A2B' }}
-                    >
-                      เช่าอีกครั้ง
-                    </Link>
-                  ) : (
                     <Link
                       href={`/read/${item.book._id}`}
-                      className="text-sm px-3 py-1.5 rounded-lg font-medium"
-                      style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+                      style={{ padding: '9px 16px', borderRadius: 8, backgroundColor: '#BF5A2B', color: '#FBF6EC', textDecoration: 'none', fontSize: 13.5, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}
                     >
-                      อ่าน
+                      อ่านต่อ
                     </Link>
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* OWNED — grid with cover and overlay */}
+            {activeTab === 'owned' && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 16 }}>
+                {items.map(item => (
+                  <div key={item.entitlementId} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden' }}>
+                    <div style={{ aspectRatio: '2/3', backgroundColor: '#4A5568' }}>
+                      {item.book.cover_url
+                        ? <img src={item.book.cover_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+                        : <div style={{ width: '100%', height: '100%', background: '#5B6E86' }} />
+                      }
+                    </div>
+                    {/* owned badge */}
+                    <div style={{ position: 'absolute', top: 8, left: 8, fontSize: 10, fontWeight: 700, color: '#EDF4EF', backgroundColor: '#2F5D50', borderRadius: 20, padding: '2px 8px' }}>
+                      เป็นเจ้าของ
+                    </div>
+                    {/* read overlay */}
+                    <Link
+                      href={`/read/${item.book._id}`}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(42,36,28,.0)',
+                        color: '#FBF6EC',
+                        textDecoration: 'none',
+                        fontSize: 26,
+                        fontWeight: 700,
+                        opacity: 0,
+                        transition: 'all .15s',
+                      }}
+                      onMouseEnter={e => {
+                        const el = e.currentTarget as HTMLAnchorElement
+                        el.style.backgroundColor = 'rgba(42,36,28,.65)'
+                        el.style.opacity = '1'
+                      }}
+                      onMouseLeave={e => {
+                        const el = e.currentTarget as HTMLAnchorElement
+                        el.style.backgroundColor = 'rgba(42,36,28,.0)'
+                        el.style.opacity = '0'
+                      }}
+                    >
+                      ▸ เปิดอ่าน
+                    </Link>
+                    <div style={{ padding: '8px 6px' }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: '#2A241C', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.book.title}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* EXPIRED — grayscale + re-rent */}
+            {activeTab === 'expired' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {items.map(item => (
+                  <div
+                    key={item.entitlementId}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                      padding: '14px 16px',
+                      borderRadius: 14,
+                      backgroundColor: '#FBF6EC',
+                      border: '1px solid #E0D5BE',
+                      opacity: .75,
+                    }}
+                  >
+                    <div style={{ width: 64, aspectRatio: '2/3', borderRadius: 6, overflow: 'hidden', flexShrink: 0, filter: 'grayscale(1)', backgroundColor: '#C0BAA8' }}>
+                      {item.book.cover_url
+                        ? <img src={item.book.cover_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+                        : <div style={{ width: '100%', height: '100%' }} />
+                      }
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ fontFamily: "'Trirong',serif", fontSize: 15, fontWeight: 600, color: '#4A4234', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {item.book.title}
+                      </h3>
+                      <p style={{ fontSize: 13, color: '#8A7F68' }}>{item.book.author}</p>
+                      <p style={{ fontSize: 12, color: '#9A4632', marginTop: 4 }}>หมดอายุแล้ว</p>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
+                      <Link
+                        href={`/books/${item.book._id}`}
+                        style={{ padding: '8px 14px', borderRadius: 8, backgroundColor: '#F7E4D5', border: '1.5px solid #EAC9B3', color: '#BF5A2B', textDecoration: 'none', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', textAlign: 'center' }}
+                      >
+                        เช่าอีกครั้ง
+                      </Link>
+                      <Link
+                        href={`/books/${item.book._id}`}
+                        style={{ padding: '8px 14px', borderRadius: 8, backgroundColor: '#2A241C', color: '#FBF6EC', textDecoration: 'none', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', textAlign: 'center' }}
+                      >
+                        ซื้อ
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

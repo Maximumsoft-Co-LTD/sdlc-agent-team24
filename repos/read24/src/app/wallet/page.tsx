@@ -40,20 +40,31 @@ export default function WalletPage() {
     adjust: 'ปรับยอด',
   }
 
+  const txIcon = (type: string, amount: number) => {
+    const isIn = amount > 0
+    return (
+      <div style={{
+        width: 38, height: 38, borderRadius: '50%',
+        backgroundColor: isIn ? '#E0EFE7' : '#F6E0DA',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+        fontSize: 16,
+      }}>
+        {isIn ? '↑' : '↓'}
+      </div>
+    )
+  }
+
   return (
-    <div style={{ backgroundColor: '#EFE6D2', minHeight: '100vh' }}>
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1
-            className="text-2xl font-bold"
-            style={{ fontFamily: "'Trirong', serif", color: '#2A241C' }}
-          >
+    <div style={{ backgroundColor: '#ECE3D2', minHeight: '100vh' }}>
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 22px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+          <h1 style={{ fontFamily: "'Trirong',serif", fontSize: 26, fontWeight: 700, color: '#2A241C' }}>
             กระเป๋าเหรียญ
           </h1>
           <Link
             href="/wallet/topup"
-            className="px-4 py-2 rounded-lg font-medium text-sm"
-            style={{ backgroundColor: '#BF5A2B', color: '#EFE6D2' }}
+            style={{ padding: '9px 18px', borderRadius: 10, backgroundColor: '#BF5A2B', color: '#FBF6EC', textDecoration: 'none', fontWeight: 600, fontSize: 14 }}
           >
             + เติมเหรียญ
           </Link>
@@ -61,60 +72,77 @@ export default function WalletPage() {
 
         {/* Balance card */}
         <div
-          className="rounded-2xl p-6 mb-6"
-          style={{ backgroundColor: '#2F5D50' }}
+          style={{
+            background: 'linear-gradient(135deg,#3A2F22,#2A241C)',
+            borderRadius: 20,
+            padding: '28px 28px 24px',
+            marginBottom: 28,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
         >
-          <p className="text-sm mb-1" style={{ color: '#b3a88f' }}>ยอดเหรียญปัจจุบัน</p>
-          <p className="text-4xl font-bold" style={{ color: '#D9A441' }}>
-            &#x1FA99; {(user?.balance || 0).toLocaleString()}
-          </p>
-          <p className="text-sm mt-2" style={{ color: '#b3a88f' }}>เหรียญ</p>
+          {/* Decorative orb */}
+          <div style={{ position: 'absolute', top: -40, right: -40, width: 180, height: 180, borderRadius: '50%', background: 'rgba(201,154,63,.10)', pointerEvents: 'none' }} />
+          <p style={{ fontSize: 13, color: 'rgba(251,246,236,.55)', marginBottom: 14, fontWeight: 500 }}>ยอดเหรียญปัจจุบัน</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 30%, #F0CE73, #C99A3F)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 26, flexShrink: 0,
+            }}>
+              🪙
+            </div>
+            <div style={{ fontFamily: "'Trirong',serif", fontSize: 46, fontWeight: 700, color: '#FBF6EC', lineHeight: 1 }}>
+              {(user?.balance || 0).toLocaleString()}
+            </div>
+          </div>
+          <p style={{ fontSize: 13, color: 'rgba(251,246,236,.5)' }}>1 เหรียญ = 1 บาท</p>
         </div>
 
-        <h2 className="text-lg font-semibold mb-3" style={{ color: '#2A241C' }}>
+        <h2 style={{ fontFamily: "'Trirong',serif", fontSize: 18, fontWeight: 700, color: '#2A241C', marginBottom: 14 }}>
           ประวัติการทำรายการ
         </h2>
 
         {loading ? (
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 rounded-xl animate-pulse" style={{ backgroundColor: '#DDD1B8' }} />
+              <div key={i} style={{ height: 66, borderRadius: 12, backgroundColor: '#DDD1B8' }} />
             ))}
           </div>
         ) : transactions.length === 0 ? (
-          <p className="text-center py-8" style={{ color: '#6B6253' }}>ยังไม่มีรายการ</p>
+          <p style={{ textAlign: 'center', padding: '48px 0', color: '#6B6253', fontSize: 15 }}>ยังไม่มีรายการ</p>
         ) : (
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {transactions.map((tx: any) => (
               <div
                 key={tx._id}
-                className="flex items-center justify-between p-4 rounded-xl"
                 style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  padding: '14px 16px',
+                  borderRadius: 12,
                   backgroundColor: '#FBF6EC',
-                  border: '1px solid #DDD1B8',
-                  boxShadow: '0 1px 3px rgba(42,36,28,0.05)',
+                  border: '1px solid #E0D5BE',
+                  boxShadow: '0 1px 3px rgba(42,36,28,.05)',
                 }}
               >
-                <div>
-                  <p className="font-medium" style={{ color: '#2A241C' }}>
-                    {typeLabel[tx.type] || tx.type}
-                  </p>
-                  <p className="text-xs" style={{ color: '#6B6253' }}>
+                {txIcon(tx.type, tx.amount)}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#2A241C' }}>{typeLabel[tx.type] || tx.type}</p>
+                  <p style={{ fontSize: 12, color: '#6B6253', marginTop: 2 }}>
                     {new Date(tx.created_at).toLocaleDateString('th-TH', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
+                      day: 'numeric', month: 'short', year: '2-digit',
+                      hour: '2-digit', minute: '2-digit',
                     })}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold" style={{ color: tx.amount > 0 ? '#2F6E54' : '#BF5A2B' }}>
-                    {tx.amount > 0 ? '+' : ''}
-                    {tx.amount.toLocaleString()} &#x1FA99;
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontFamily: "'Trirong',serif", fontWeight: 700, fontSize: 16, color: tx.amount > 0 ? '#2F6E54' : '#BF5A2B' }}>
+                    {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()} 🪙
                   </p>
-                  <p className="text-xs" style={{ color: '#6B6253' }}>
+                  <p style={{ fontSize: 12, color: '#6B6253', marginTop: 2 }}>
                     คงเหลือ {tx.balance_after?.toLocaleString() || '-'}
                   </p>
                 </div>
@@ -123,8 +151,7 @@ export default function WalletPage() {
             {nextCursor && (
               <button
                 onClick={() => fetchTransactions(nextCursor)}
-                className="w-full py-2 text-sm font-medium"
-                style={{ color: '#BF5A2B' }}
+                style={{ width: '100%', padding: '10px 0', fontSize: 14, fontWeight: 500, color: '#BF5A2B', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'IBM Plex Sans Thai',system-ui,sans-serif" }}
               >
                 โหลดเพิ่มเติม
               </button>

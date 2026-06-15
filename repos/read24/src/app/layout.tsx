@@ -19,7 +19,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="min-h-screen" style={{ fontFamily: "'IBM Plex Sans Thai', sans-serif", backgroundColor: '#EFE6D2', color: '#2A241C' }}>
+      <body className="min-h-screen" style={{ fontFamily: "'IBM Plex Sans Thai', system-ui, sans-serif", backgroundColor: '#ECE3D2', color: '#2A241C' }}>
         <Providers>
           <Navbar />
           <main>{children}</main>
